@@ -5,12 +5,12 @@ class Dos2unix < Formula
   url 'http://waterlan.home.xs4all.nl/dos2unix/dos2unix-6.0.5.tar.gz'
   sha1 'b43d138e1713791ea5067c32afbcd7a32655d2fa'
 
-  patch do
-    url 'http://waterlan.home.xs4all.nl/dos2unix/dos2unix-pod-encoding.patch'
-    sha1 '01601899597dcb361ba0b499f537588145ec08a9'
-  end
-
   depends_on 'gettext'
+
+  devel do
+    url 'http://waterlan.home.xs4all.nl/dos2unix/dos2unix-6.0.6-beta1.tar.gz'
+    sha1 '2ef5f0021c5a3f7a2e1a09faf33d5d410c18a44d'
+  end
 
   def install
     gettext = Formula["gettext"]
