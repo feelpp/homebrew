@@ -12,12 +12,12 @@ BOTTLE_ERB = <<-EOS
     <% if root_url != BottleSpecification::DEFAULT_ROOT_URL %>
     root_url "<%= root_url %>"
     <% end %>
-    <% if prefix.to_s != "/usr/local" %>
+    <% if prefix != BottleSpecification::DEFAULT_PREFIX %>
     prefix "<%= prefix %>"
     <% end %>
     <% if cellar.is_a? Symbol %>
     cellar :<%= cellar %>
-    <% elsif cellar.to_s != "/usr/local/Cellar" %>
+    <% elsif cellar != BottleSpecification::DEFAULT_CELLAR %>
     cellar "<%= cellar %>"
     <% end %>
     <% if revision > 0 %>
@@ -63,7 +63,7 @@ module Homebrew
       end
 
       # Use strings to search through the file for each string
-      IO.popen("strings -t x - '#{file}'", "rb") do |io|
+      Utils.popen_read("strings", "-t", "x", "-", file.to_s) do |io|
         until io.eof?
           str = io.readline.chomp
 
@@ -152,24 +152,24 @@ module Homebrew
           cellar, Keg::CELLAR_PLACEHOLDER, :keg_only => f.keg_only?
         keg.delete_pyc_files!
 
-        HOMEBREW_CELLAR.cd do
+        cd cellar do
           # Use gzip, faster to compress than bzip2, faster to uncompress than bzip2
           # or an uncompressed tarball (and more bandwidth friendly).
           safe_system 'tar', 'czf', bottle_path, "#{f.name}/#{f.pkg_version}"
         end
 
-        if File.size?(bottle_path) > 1*1024*1024
+        if bottle_path.size > 1*1024*1024
           ohai "Detecting if #{filename} is relocatable..."
         end
 
         if prefix == '/usr/local'
-          prefix_check = HOMEBREW_PREFIX/'opt'
+          prefix_check = File.join(prefix, "opt")
         else
-          prefix_check = HOMEBREW_PREFIX
+          prefix_check = prefix
         end
 
         relocatable = !keg_contains(prefix_check, keg)
-        relocatable = !keg_contains(HOMEBREW_CELLAR, keg) && relocatable
+        relocatable = !keg_contains(cellar, keg) && relocatable
         puts if !relocatable && ARGV.verbose?
       rescue Interrupt
         ignore_interrupts { bottle_path.unlink if bottle_path.exist? }
@@ -186,8 +186,8 @@ module Homebrew
 
     bottle = BottleSpecification.new
     bottle.root_url(root_url) if root_url
-    bottle.prefix HOMEBREW_PREFIX
-    bottle.cellar relocatable ? :any : HOMEBREW_CELLAR
+    bottle.prefix prefix
+    bottle.cellar relocatable ? :any : cellar
     bottle.revision bottle_revision
     bottle.sha1 bottle_path.sha1 => bottle_tag
 
@@ -239,17 +239,14 @@ module Homebrew
             odie 'Bottle block update failed!' unless string
           else
             update_or_add = 'add'
-            string = s.sub!(/(  (url|sha1|sha256|head|version|mirror) ['"][\S ]+['"]\n+)+/m, '\0' + output + "\n")
+            string = s.sub!(/(  (url|sha1|sha256|head|version|mirror|revision) ['"][\S ]+['"]\n+)+/m, '\0' + output + "\n")
             odie 'Bottle block addition failed!' unless string
           end
         end
 
-        version = f.version.to_s
-        version += "_#{f.revision}" if f.revision.to_i > 0
-
         HOMEBREW_REPOSITORY.cd do
           safe_system "git", "commit", "--no-edit", "--verbose",
-            "--message=#{f.name}: #{update_or_add} #{version} bottle.",
+            "--message=#{f.name}: #{update_or_add} #{f.pkg_version} bottle.",
             "--", f.path
         end
       end

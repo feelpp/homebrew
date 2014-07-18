@@ -42,7 +42,6 @@ module HomebrewArgvExtension
           Multiple kegs installed to #{rack}
           However we don't know which one you refer to.
           Please delete (with rm -rf!) all but one and then try again.
-          Sorry, we know this is lame.
         EOS
       end
     end
@@ -132,7 +131,7 @@ module HomebrewArgvExtension
   end
 
   def build_from_source?
-    include? '--build-from-source' or !ENV['HOMEBREW_BUILD_FROM_SOURCE'].nil?
+    switch?("s") || include?("--build-from-source") || !!ENV["HOMEBREW_BUILD_FROM_SOURCE"]
   end
 
   def flag? flag
