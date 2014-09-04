@@ -16,7 +16,7 @@ class OpenMpi < Formula
   depends_on 'libevent'
 
   bottle do
-    root_url 'http://feelpp-bottles.u-strasbg.fr/'
+    root_url 'https://feelpp-bottles.u-strasbg.fr/'
     sha1 "3f09233195f5ae7d807aed9f6305f2df4afb264d" => :mavericks
   end
 
