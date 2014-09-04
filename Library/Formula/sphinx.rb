@@ -2,15 +2,16 @@ require 'formula'
 
 class Sphinx < Formula
   homepage 'http://www.sphinxsearch.com'
-  url 'http://sphinxsearch.com/files/sphinx-2.1.8-release.tar.gz'
-  sha1 'c69e24ed1fad907b893dc61b0a52db30b6c85ad2'
+  url 'http://sphinxsearch.com/files/sphinx-2.1.9-release.tar.gz'
+  sha1 '2ddd945eb0a7de532a7aaed2e933ac05b978cff2'
 
   head 'http://sphinxsearch.googlecode.com/svn/trunk/'
 
   bottle do
-    sha1 "304bc474b4c1c80739e7a92fa05a9333520660a5" => :mavericks
-    sha1 "4f66be7ba289da28643f869c69adb892e01ddea8" => :mountain_lion
-    sha1 "988fc7b694ed273801018e332d3d44d3e72ff30d" => :lion
+    revision 1
+    sha1 "bedd71d9e8a0691e2e4bbfef057f6d87a6a7fe28" => :mavericks
+    sha1 "ba05b267136faff945b2370b81907c87c4126341" => :mountain_lion
+    sha1 "8c6351384d69e982527b71ca6162cc8fd680c2ec" => :lion
   end
 
   devel do
@@ -29,7 +30,7 @@ class Sphinx < Formula
   # http://snowball.tartarus.org/
   resource 'stemmer' do
     url 'http://snowball.tartarus.org/dist/libstemmer_c.tgz'
-    sha1 'bbe1ba5bbebb146575a575b8ca3342aa3b91bf93'
+    sha1 '9b0f120a68a3c688b2f5a8d0f681620465c29d38'
   end
 
   fails_with :llvm do
@@ -45,12 +46,18 @@ class Sphinx < Formula
   def install
     (buildpath/'libstemmer_c').install resource('stemmer')
 
+    # libstemmer changed the name of the non-UTF8 Hungarian source files,
+    # but the released version of sphinx still refers to it under the old name.
+    inreplace "libstemmer_c/Makefile.in",
+      "stem_ISO_8859_1_hungarian", "stem_ISO_8859_2_hungarian"
+
     args = %W[--prefix=#{prefix}
               --disable-dependency-tracking
               --localstatedir=#{var}
               --with-libstemmer]
 
     args << "--enable-id64" if build.include? 'id64'
+    args << "--with-re2" if build.with? 're2'
 
     %w{mysql pgsql}.each do |db|
       if build.include? db

@@ -72,11 +72,13 @@ class Keg
   # lib/, and ignores binaries and other mach-o objects
   # Note that this doesn't attempt to distinguish between libstdc++ versions,
   # for instance between Apple libstdc++ and GNU libstdc++
-  def detect_cxx_stdlibs(opts={:skip_executables => false})
+  def detect_cxx_stdlibs(options={})
+    options = { :skip_executables => false }.merge(options)
+    skip_executables = options[:skip_executables]
     results = Set.new
 
     mach_o_files.each do |file|
-      next if file.mach_o_executable? && opts[:skip_executables]
+      next if file.mach_o_executable? && skip_executables
       dylibs = file.dynamically_linked_libraries
       results << :libcxx unless dylibs.grep(/libc\+\+.+\.dylib/).empty?
       results << :libstdcxx unless dylibs.grep(/libstdc\+\+.+\.dylib/).empty?
@@ -131,7 +133,7 @@ class Keg
     dylibs.each(&block)
   end
 
-  def dylib_id_for file, options={}
+  def dylib_id_for(file, options)
     # The new dylib ID should have the same basename as the old dylib ID, not
     # the basename of the file itself.
     basename = File.basename(file.dylib_id)
@@ -151,7 +153,7 @@ class Keg
 
   def mach_o_files
     mach_o_files = []
-    dirs = %w{bin lib Frameworks}
+    dirs = %w{bin sbin lib Frameworks}
     dirs.map! { |dir| path.join(dir) }
     dirs.reject! { |dir| not dir.directory? }
 
