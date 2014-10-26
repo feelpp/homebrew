@@ -8,14 +8,14 @@ end
 
 class Gnuplot < Formula
   homepage 'http://www.gnuplot.info'
-  url 'https://downloads.sourceforge.net/project/gnuplot/gnuplot/4.6.5/gnuplot-4.6.5.tar.gz'
-  sha256 'e550f030c7d04570e89c3d4e3f6e82296816508419c86ab46c4dd73156519a2d'
-  revision 1
+  url 'https://downloads.sourceforge.net/project/gnuplot/gnuplot/4.6.6/gnuplot-4.6.6.tar.gz'
+  sha256 '1f19596fd09045f22225afbfec11fa91b9ad1d95b9f48406362f517d4f130274'
 
   bottle do
-    sha1 "6ab83d98d37a821ee76a7f8f18478f648d6e69df" => :mavericks
-    sha1 "1ee12cdb1f2cf01581340b236b4b1921d3ef22a3" => :mountain_lion
-    sha1 "a993df7a3889f9c828f05c663cd563ab81390b1e" => :lion
+    revision 1
+    sha1 "c6a2e3f30495c1bd790ea5091f40b7644d695112" => :yosemite
+    sha1 "03d507d87eedd8c4bf3e460931081a10403f379d" => :mavericks
+    sha1 "24618fd48a6d5fa2f69843da8ac2aaa8d631ff48" => :mountain_lion
   end
 
   head do

@@ -2,9 +2,11 @@ require 'requirement'
 require 'requirements/fortran_dependency'
 require 'requirements/language_module_dependency'
 require 'requirements/minimum_macos_requirement'
+require 'requirements/maximum_macos_requirement'
 require 'requirements/mpi_dependency'
 require 'requirements/osxfuse_dependency'
 require 'requirements/python_dependency'
+require 'requirements/unsigned_kext_requirement'
 require 'requirements/x11_dependency'
 
 class XcodeDependency < Requirement
