@@ -65,6 +65,18 @@ class Formula
     end
   end
 
+  def stable?
+    active_spec == stable
+  end
+
+  def devel?
+    active_spec == devel
+  end
+
+  def head?
+    active_spec == head
+  end
+
   def bottle
     Bottle.new(self, active_spec.bottle_specification) if active_spec.bottled?
   end
@@ -267,8 +279,6 @@ class Formula
     stage do
       begin
         patch
-        # we allow formulae to do anything they want to the Ruby process
-        # so load any deps before this point! And exit asap afterwards
         yield self
       ensure
         cp Dir["config.log", "CMakeCache.txt"], HOMEBREW_LOGS+name

@@ -22,15 +22,14 @@ class Gcc < Formula
   end
 
   homepage "http://gcc.gnu.org"
-  url "http://ftpmirror.gnu.org/gcc/gcc-4.9.1/gcc-4.9.1.tar.bz2"
-  mirror "ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.9.1/gcc-4.9.1.tar.bz2"
-  sha1 "3f303f403053f0ce79530dae832811ecef91197e"
+  url "http://ftpmirror.gnu.org/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2"
+  mirror "ftp://gcc.gnu.org/pub/gcc/releases/gcc-4.9.2/gcc-4.9.2.tar.bz2"
+  sha1 "79dbcb09f44232822460d80b033c962c0237c6d8"
 
   bottle do
-    revision 4
-    sha1 "656bbfa4c755ce4956ab1c896983a36abf103afb" => :yosemite
-    sha1 "d53fdd72908ca631e811fc058e85542d5a945476" => :mavericks
-    sha1 "23b5d413cd1e633fd04e77cef9214bc381313039" => :mountain_lion
+    sha1 "178f037a3970fb9a86c07aad8215acbb9467ab63" => :yosemite
+    sha1 "a3e86973036b15371f2443eb05056d942f7d3dff" => :mavericks
+    sha1 "3d909968fc9bd6c505fd4ff20cf4bc5f4e0ba197" => :mountain_lion
   end
 
   option "with-java", "Build the gcj compiler"
@@ -66,12 +65,6 @@ class Gcc < Formula
 
   def version_suffix
     version.to_s.slice(/\d\.\d/)
-  end
-
-  # Fix 10.10 issues: https://gcc.gnu.org/viewcvs/gcc?view=revision&revision=215251
-  patch do
-    url "https://raw.githubusercontent.com/DomT4/scripts/6c0e48921/Homebrew_Resources/Gcc/gcc1010.diff"
-    sha1 "083ec884399218584aec76ab8f2a0db97c12a3ba"
   end
 
   def install
@@ -129,7 +122,7 @@ class Gcc < Formula
     args << "--disable-nls" if build.without? "nls"
 
     if build.with?("java") || build.with?("all-languages")
-      args << "--with-ecj-jar=#{Formula["ecj"].opt_prefix}/share/java/ecj.jar"
+      args << "--with-ecj-jar=#{Formula["ecj"].opt_share}/java/ecj.jar"
     end
 
     if build.without?("multilib") || !MacOS.prefer_64_bit?
@@ -196,6 +189,28 @@ class Gcc < Formula
   end
 
   test do
+    (testpath/"hello-c.c").write <<-EOS.undent
+      #include <stdio.h>
+      int main()
+      {
+        puts("Hello, world!");
+        return 0;
+      }
+    EOS
+    system "#{bin}/gcc-#{version_suffix}", "-o", "hello-c", "hello-c.c"
+    assert_equal "Hello, world!\n", `./hello-c`
+
+    (testpath/"hello-cc.cc").write <<-'EOS'.undent
+      #include <iostream>
+      int main()
+      {
+        std::cout << "Hello, world!\n";
+        return 0;
+      }
+    EOS
+    system "#{bin}/g++-#{version_suffix}", "-o", "hello-cc", "hello-cc.cc"
+    assert_equal "Hello, world!\n", `./hello-cc`
+
     if build.with?("fortran") || build.with?("all-languages")
       fixture = <<-EOS.undent
         integer,parameter::m=10000

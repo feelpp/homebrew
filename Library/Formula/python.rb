@@ -234,7 +234,7 @@ class Python < Formula
     # superenv handles that cc finds includes/libs!
     inreplace "setup.py",
               "do_readline = self.compiler.find_library_file(lib_dirs, 'readline')",
-              "do_readline = '#{HOMEBREW_PREFIX}/opt/readline/lib/libhistory.dylib'"
+              "do_readline = '#{Formula["readline"].opt_lib}/libhistory.dylib'"
   end
 
   def distutils_fix_stdenv
@@ -321,7 +321,7 @@ class Python < Formula
     They will install into the site-package directory
       #{site_packages}
 
-    See: https://github.com/Homebrew/homebrew/wiki/Homebrew-and-Python
+    See: https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/Homebrew-and-Python.md
     EOS
   end
 
