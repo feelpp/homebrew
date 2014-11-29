@@ -10,18 +10,55 @@ class Assimp < Formula
 
   bottle do
     cellar :any
-    sha1 "0b103054733c3791ad92cdb51b0acd7e053baf61" => :yosemite
-    sha1 "a34746e16ce3ec4d5737db73db1ddd766d688619" => :mavericks
-    sha1 "7a0bb7602c85f83cb775a95bfe384bf8a5ca4283" => :mountain_lion
+    revision 1
+    sha1 "147bc1b92a31526950262c123b2d78d78b092005" => :yosemite
+    sha1 "a44ef2d43ab074beb0b03196e65df3bf1a8e406b" => :mavericks
+    sha1 "31bb541f50c5ff22055ce2f608ae88ab4997407c" => :mountain_lion
   end
 
   option "without-boost", "Compile without thread safe logging or multithreaded computation if boost isn't installed"
 
   depends_on "cmake" => :build
-  depends_on "boost" => :recommended
+  depends_on "boost" => [:recommended, :build]
 
   def install
     system "cmake", ".", *std_cmake_args
     system "make", "install"
+  end
+
+  test do
+    # Library test.
+    (testpath/'test.cpp').write <<-EOS.undent
+      #include <assimp/Importer.hpp>
+      int main() {
+        Assimp::Importer importer;
+        return 0;
+      }
+    EOS
+    system ENV.cc, "test.cpp", "-lassimp", "-o", "test"
+    system "./test"
+
+    # Application test.
+    (testpath/"test.obj").write <<-EOS.undent
+      # WaveFront .obj file - a single square based pyramid
+
+      # Start a new group:
+      g MySquareBasedPyramid
+
+      # List of vertices:
+      v -0.5 0 0.5    # Front left.
+      v 0.5 0 0.5   # Front right.
+      v 0.5 0 -0.5    # Back right
+      v -0.5 0 -0.5   # Back left.
+      v 0 1 0           # Top point (top of pyramid).
+
+      # List of faces:
+      f 4 3 2 1       # Square base (note: normals are placed anti-clockwise).
+      f 1 2 5         # Triangle on front.
+      f 3 4 5         # Triangle on back.
+      f 4 1 5         # Triangle on left side.
+      f 2 3 5
+    EOS
+    system "assimp", "export", testpath/"test.obj", testpath/"test.ply"
   end
 end

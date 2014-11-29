@@ -1,13 +1,14 @@
 require "formula"
 
-class Syncthing < Formula
-  homepage "http://syncthing.net"
-  url "https://github.com/syncthing/syncthing.git", :tag => "v0.10.8"
+class Pulse < Formula
+  homepage "https://ind.ie/pulse/"
+  url "https://source.ind.ie/project/pulse.git", :tag => "0.1.1"
+  head "https://source.ind.ie/project/pulse.git"
 
   bottle do
-    sha1 "33e55e2a4014447b368c92614748175bd963d95c" => :yosemite
-    sha1 "15bd5a1f7b197d6b9f22e0f937a3213aabc34c95" => :mavericks
-    sha1 "0e44ccd8fc08db1a3994d61a344744864a7483dd" => :mountain_lion
+    sha1 "a74e7d0c530321cd9bd83fd382f28b53aa306606" => :yosemite
+    sha1 "b85b68c551bbff3c5f5a3ca0c151d60687b4ebc3" => :mavericks
+    sha1 "2e4797f4a3b1a51296beb61b60f2eb273c1155fb" => :mountain_lion
   end
 
   depends_on "go" => :build
@@ -17,14 +18,15 @@ class Syncthing < Formula
     ENV["GOPATH"] = cached_download/".gopath"
     ENV.append_path "PATH", "#{ENV["GOPATH"]}/bin"
 
-    hack_dir = cached_download/".gopath/src/github.com/syncthing"
+    hack_dir = cached_download/".gopath/src/source.ind.ie/project/"
     rm_rf  hack_dir
     mkdir_p hack_dir
-    ln_s cached_download, "#{hack_dir}/syncthing"
+    ln_s cached_download, "#{hack_dir}/pulse"
     ln_s cached_download/".git", ".git"
 
     system "./build.sh", "noupgrade"
-    bin.install "syncthing"
+    prefix.install %w{ CONTRIBUTING.md CONTRIBUTORS LICENSE README.md }
+    bin.install "pulse"
   end
 
   def plist; <<-EOS.undent
@@ -43,7 +45,7 @@ class Syncthing < Formula
         <string>#{plist_name}</string>
         <key>ProgramArguments</key>
         <array>
-          <string>#{opt_bin}/syncthing</string>
+          <string>#{opt_bin}/pulse</string>
           <string>-no-browser</string>
         </array>
         <key>RunAtLoad</key>
@@ -54,6 +56,6 @@ class Syncthing < Formula
   end
 
   test do
-    system "#{bin}/syncthing", "-generate", "./"
+    system "#{bin}/pulse", "-generate", "./"
   end
 end
