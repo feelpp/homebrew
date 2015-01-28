@@ -1,4 +1,5 @@
 require 'requirement'
+require 'requirements/apr_dependency'
 require 'requirements/fortran_dependency'
 require 'requirements/language_module_dependency'
 require 'requirements/minimum_macos_requirement'
@@ -58,10 +59,17 @@ class PostgresqlDependency < Requirement
   satisfy { which 'pg_config' }
 end
 
+class GPGDependency < Requirement
+  fatal true
+  default_formula "gpg"
+
+  satisfy { which("gpg") || which("gpg2") }
+end
+
 class TeXDependency < Requirement
   fatal true
   cask "mactex"
-  download "http://www.tug.org/mactex/"
+  download "https://www.tug.org/mactex/"
 
   satisfy { which('tex') || which('latex') }
 
@@ -118,7 +126,7 @@ class JavaDependency < Requirement
   satisfy { java_version }
 
   def initialize(tags)
-    @version = tags.pop
+    @version = tags.shift if /(\d\.)+\d/ === tags.first
     super
   end
 
@@ -134,29 +142,5 @@ class JavaDependency < Requirement
     s = "Java#{version_string} is required to install this formula."
     s += super
     s
-  end
-end
-
-class AprDependency < Requirement
-  fatal true
-
-  satisfy(:build_env => false) { MacOS::CLT.installed? }
-
-  def message
-    message = <<-EOS.undent
-      Due to packaging problems on Apple's part, software that compiles
-      against APR requires the standalone Command Line Tools.
-    EOS
-    if MacOS.version >= :mavericks
-      message += <<-EOS.undent
-        Run `xcode-select --install` to install them.
-      EOS
-    else
-      message += <<-EOS.undent
-        The standalone package can be obtained from
-        https://developer.apple.com/downloads/,
-        or it can be installed via Xcode's preferences.
-      EOS
-    end
   end
 end

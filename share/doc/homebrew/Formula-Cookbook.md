@@ -62,7 +62,7 @@ Before contributing, make sure your package:
 *   meets all our [Acceptable Formulae](Acceptable-Formulae.md) requirements
 *   isn't already in Homebrew (check `brew search $FORMULA`)
 *   isn't in another [Homebrew tap](https://github.com/Homebrew)
-*   isn't already waiting to be merged (check the [issue tracker](http://github.com/Homebrew/homebrew/issues))
+*   isn't already waiting to be merged (check the [issue tracker](https://github.com/Homebrew/homebrew/issues))
 *   is still supported by upstream
 *   has a stable, tagged version (i.e. not just a GitHub repository with no versions). See [Interesting-Taps-&-Branches](Interesting-Taps-&-Branches.md) for where pre-release and head-only versions belong.
 
@@ -79,7 +79,7 @@ Probably. But we have rules to keep the quality and goals of Homebrew intact: Pl
 
 Formulae aren’t that complicated. [etl](https://github.com/Homebrew/homebrew/blob/master/Library/Formula/etl.rb) is as simple as it gets.
 
-And then [Git](http://github.com/Homebrew/homebrew/tree/master/Library/Formula/git.rb) and [flac](http://github.com/Homebrew/homebrew/tree/master/Library/Formula/flac.rb) show more advanced functionality.
+And then [Git](https://github.com/Homebrew/homebrew/tree/master/Library/Formula/git.rb) and [flac](https://github.com/Homebrew/homebrew/tree/master/Library/Formula/flac.rb) show more advanced functionality.
 
 A more complete [cheat-sheet](https://github.com/Homebrew/homebrew/blob/master/Library/Contributions/example-formula.rb) shows almost all the stuff you can use in a Formula.
 
@@ -198,6 +198,25 @@ A Hash specifies a formula dependency with some additional information. Given a 
     depends_on "foo" => [:optional, "with-bar"]
     ```
 
+
+## Specifying other formulae as conflicts
+
+Sometimes there’s hard conflict between formulae, and it can’t be avoided or circumvented with `keg_only`.
+
+PolarSSL is a good [example](https://github.com/Homebrew/homebrew/blob/master/Library/Formula/polarssl.rb#L36-L37) formula for minor conflict.
+
+PolarSSL ship GNU’s Hello, and compiles a `hello` binary. This is obviously non-essential to PolarSSL’s functionality, and conflict with the `hello` formula would be overkill, so we just remove it.
+
+However, also in the PolarSSL formulae is a [firm conflict](https://github.com/Homebrew/homebrew/blob/master/Library/Formula/polarssl.rb#L19) with `md5sha1sum`, because both `md5sha1sum` and `polarssl` compile identically-named binaries that *are* important for core functionality.
+
+As a general rule, `conflicts_with` should be a last-resort option. It’s a fairly blunt instrument.
+
+The syntax for conflict that can’t be worked around is
+
+```ruby
+conflicts_with "blueduck", :because => "yellowduck also ships a duck binary"
+```
+
 ## Formulae Revisions
 
 In Homebrew we sometimes accept formulae updates that don’t include a version bump. These include homepage changes, resource updates, new patches or fixing a security issue with a formula.
@@ -300,7 +319,7 @@ The only exception is stuff like “Apache Ant”. Apache sticks “Apache” in
 
 If you’re not sure about the name check the homepage, and check the Wikipedia page.
 
-[ALSO CHECK WHAT DEBIAN CALLS IT!](http://www.debian.org/distrib/packages)
+[ALSO CHECK WHAT DEBIAN CALLS IT!](https://www.debian.org/distrib/packages)
 
 Where Homebrew already has a formula called `foo` we typically do not accept requests to replace that formula with something else also named `foo`. This is to avoid both confusing and surprising users’ expectation.
 
@@ -354,7 +373,7 @@ Ensure you reference any relevant GitHub issue `#12345` in the commit message. H
 
 Now you just need to push back to GitHub.
 
-If you haven’t forked Homebrew yet, [go to the repo and hit the fork button](http://github.com/Homebrew/homebrew).
+If you haven’t forked Homebrew yet, [go to the repo and hit the fork button](https://github.com/Homebrew/homebrew).
 
 If you have already forked Homebrew on Github, then you can manually push (just make sure you have been pulling from the Homebrew/homebrew master):
 
@@ -921,7 +940,7 @@ class Foo < Formula
 end
 ```
 
-If that fixes it, please open an [issue](http://github.com/Homebrew/homebrew/issues) so that we can fix it for everyone.
+If that fixes it, please open an [issue](https://github.com/Homebrew/homebrew/issues) so that we can fix it for everyone.
 
 ## Still won’t work?
 
