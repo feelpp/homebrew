@@ -325,7 +325,8 @@ module Homebrew
 
       unsatisfied_requirements = requirements.reject do |requirement|
         satisfied = false
-        satisfied = true if requirement.satisfied?
+        satisfied ||= requirement.satisfied?
+        satisfied ||= requirement.optional?
         if !satisfied && requirement.default_formula?
           default = Formula[requirement.class.default_formula]
           satisfied = satisfied_requirements?(default, :stable, formula.name)
@@ -446,7 +447,7 @@ module Homebrew
       audit_args << "--strict" if @added_formulae.include? formula_name
       test "brew", "audit", *audit_args
       if install_passed
-        unless ARGV.include? '--no-bottle'
+        if formula.stable? && !ARGV.include?('--no-bottle')
           bottle_args = ["--rb", formula_name]
           if @tap
             tap_user, tap_repo = @tap.split "/"
