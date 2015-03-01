@@ -1,4 +1,5 @@
 TAP_MIGRATIONS = {
+  "adobe-air-sdk" => "homebrew/binary",
   "agedu" => "homebrew/head-only",
   "aimage" => "homebrew/boneyard",
   "aplus" => "homebrew/boneyard",
@@ -16,6 +17,7 @@ TAP_MIGRATIONS = {
   "cardpeek" => "homebrew/x11",
   "catdoc" => "homebrew/boneyard",
   "cdf" => "homebrew/boneyard",
+  "celt" => "homebrew/boneyard",
   "clam" => "homebrew/boneyard",
   "cloudfoundry-cli" => "pivotal/tap",
   "clusterit" => "homebrew/x11",

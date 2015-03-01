@@ -69,6 +69,10 @@ class FormulaText
   def has_trailing_newline?
     /\Z\n/ =~ @text
   end
+
+  def =~ regex
+    regex =~ @text
+  end
 end
 
 class FormulaAuditor
@@ -168,9 +172,18 @@ class FormulaAuditor
         case dep.name
         when *BUILD_TIME_DEPS
           next if dep.build? or dep.run?
-          problem %{#{dep} dependency should be "depends_on '#{dep}' => :build"}
-        when "git", "ruby", "mercurial"
-          problem "Don't use #{dep} as a dependency. We allow non-Homebrew #{dep} installations."
+          problem <<-EOS.undent
+            #{dep} dependency should be
+              depends_on "#{dep}" => :build
+            Or if it is indeed a runtime denpendency
+              depends_on "#{dep}" => :run
+          EOS
+        when "git"
+          problem "Use `depends_on :git` instead of `depends_on 'git'`"
+        when "mercurial"
+          problem "Use `depends_on :hg` instead of `depends_on 'mercurial'`"
+        when "ruby"
+          problem "Don't use ruby as a dependency. We allow non-Homebrew ruby installations."
         when 'gfortran'
           problem "Use `depends_on :fortran` instead of `depends_on 'gfortran'`"
         when 'open-mpi', 'mpich2'
@@ -182,6 +195,12 @@ class FormulaAuditor
             EOS
         end
       end
+    end
+  end
+
+  def audit_java_home
+    if text =~ /JAVA_HOME/i && !formula.requirements.map(&:class).include?(JavaDependency)
+      problem "Use `depends_on :java` to set JAVA_HOME"
     end
   end
 
@@ -238,13 +257,40 @@ class FormulaAuditor
       problem "Savannah homepages should be https:// links (URL is #{homepage})."
     end
 
+    if homepage =~ %r[^http://((?:trac|tools|www)\.)?ietf\.org]
+      problem "ietf homepages should be https:// links (URL is #{homepage})."
+    end
+
+    if homepage =~ %r[^http://((?:www)\.)?gnupg.org/]
+      problem "GnuPG homepages should be https:// links (URL is #{homepage})."
+    end
+
+    # Freedesktop is complicated to handle - It has SSL/TLS, but only on certain subdomains.
+    # To enable https Freedesktop change the url from http://project.freedesktop.org/wiki to
+    # https://wiki.freedesktop.org/project_name.
+    # "Software" is redirected to https://wiki.freedesktop.org/www/Software/project_name
+    if homepage =~ %r[^http://((?:www|nice|libopenraw|liboil|telepathy|xorg)\.)?freedesktop\.org/(?:wiki/)?]
+      if homepage =~ /Software/
+        problem "The url should be styled `https://wiki.freedesktop.org/www/Software/project_name`, not #{homepage})."
+      else
+        problem "The url should be styled `https://wiki.freedesktop.org/project_name`, not #{homepage})."
+      end
+    end
+
+    if homepage =~ %r[^http://wiki\.freedesktop\.org/]
+      problem "Freedesktop's Wiki subdomain should be https:// (URL is #{homepage})."
+    end
+
     # There's an auto-redirect here, but this mistake is incredibly common too.
     if homepage =~ %r[^http://packages\.debian\.org]
       problem "Debian homepage should be https:// links (URL is #{homepage})."
     end
 
-    if homepage =~ %r[^http://((?:trac|tools|www)\.)?ietf\.org]
-      problem "ietf homepages should be https:// links (URL is #{homepage})."
+    # People will run into mixed content sometimes, but we should enforce and then add
+    # exemptions as they are discovered. Treat mixed content on homepages as a bug.
+    # Justify each exemptions with a code comment so we can keep track here.
+    if homepage =~ %r[^http://[^/]*github\.io/]
+      problem "Github Pages links should be https:// (URL is #{homepage})."
     end
 
     # There's an auto-redirect here, but this mistake is incredibly common too.
@@ -355,11 +401,11 @@ class FormulaAuditor
   end
 
   def audit_specs
-    if head_only?(formula) && formula.tap != "homebrew/homebrew-head-only"
+    if head_only?(formula) && formula.tap.downcase != "homebrew/homebrew-head-only"
       problem "Head-only (no stable download)"
     end
 
-    if devel_only?(formula) && formula.tap != "homebrew/homebrew-devel-only"
+    if devel_only?(formula) && formula.tap.downcase != "homebrew/homebrew-devel-only"
       problem "Devel-only (no stable download)"
     end
 
@@ -668,6 +714,32 @@ class FormulaAuditor
     end
   end
 
+  def audit_caveats
+    caveats = formula.caveats
+
+    if caveats =~ /setuid/
+      problem "Don't recommend setuid in the caveats, suggest sudo instead."
+    end
+  end
+
+  def audit_prefix_has_contents
+    return unless formula.prefix.directory?
+
+    Pathname.glob("#{formula.prefix}/**/*") do |file|
+      next if file.directory?
+      basename = file.basename.to_s
+      next if Metafiles.copy?(basename)
+      next if %w[.DS_Store INSTALL_RECEIPT.json].include?(basename)
+      return
+    end
+
+    problem <<-EOS.undent
+      The installation seems to be empty. Please ensure the prefix
+      is set correctly and expected files are installed.
+      The prefix configure/make argument may be case-sensitive.
+    EOS
+  end
+
   def audit_conditional_dep(dep, condition, line)
     quoted_dep = quote_dep(dep)
     dep = Regexp.escape(dep.to_s)
@@ -694,12 +766,15 @@ class FormulaAuditor
     audit_specs
     audit_urls
     audit_deps
+    audit_java_home
     audit_conflicts
     audit_options
     audit_patches
     audit_text
+    audit_caveats
     text.without_patch.split("\n").each_with_index { |line, lineno| audit_line(line, lineno+1) }
     audit_installed
+    audit_prefix_has_contents
   end
 
   private

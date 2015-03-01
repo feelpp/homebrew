@@ -540,7 +540,7 @@ class Formula
     elsif core_formula?
       "Homebrew/homebrew"
     else
-      "path or URL"
+      HOMEBREW_PATH_URL_TAP
     end
   end
 
@@ -615,7 +615,7 @@ class Formula
         }
       end
 
-      hsh["installed"].sort_by! { |i| Version.new(i["version"]) }
+      hsh["installed"] = hsh["installed"].sort_by { |i| Version.new(i["version"]) }
     end
 
     hsh

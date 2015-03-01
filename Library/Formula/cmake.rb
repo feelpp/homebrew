@@ -20,27 +20,15 @@ end
 
 class Cmake < Formula
   homepage "http://www.cmake.org/"
+  url "http://www.cmake.org/files/v3.1/cmake-3.1.3.tar.gz"
+  sha1 "5b9bb6e6f8c93335a0ef7b6c2d00a5273c2ea6cc"
   head "http://cmake.org/cmake.git"
-  revision 1
-
-  stable do
-    url "http://www.cmake.org/files/v3.1/cmake-3.1.1.tar.gz"
-    sha1 "e96098e402903e09f56d0c4cfef516e591088d78"
-
-    # Patching CMake for OpenSSL 1.0.2
-    # Already commited upstream. Should be in next release.
-    # http://www.cmake.org/gitweb?p=cmake.git;a=commit;h=de4ccee75a89519f95fcbcca75abc46577bfefea
-    patch do
-      url "https://github.com/Kitware/CMake/commit/c5d9a828.diff"
-      sha1 "61b15b638c1409233f36e6e3383b98cab514c3bb"
-    end
-  end
 
   bottle do
     cellar :any
-    sha1 "4b2f2b564e8714815bcf7f2e739ecbee06880453" => :yosemite
-    sha1 "4819694722d8330444915b1696cb1b3f56c78881" => :mavericks
-    sha1 "ed7d6626d1c1685ff4a4bc795a3b559fab7aeb01" => :mountain_lion
+    sha1 "6b27d87da9b29db9500cb287e5289f93e3643472" => :yosemite
+    sha1 "5a759fafa20fdeff671e2c3dc3baeaf6431e4324" => :mavericks
+    sha1 "6e7b8a9efda9071d7dba03f21cbae1e55af9c9b8" => :mountain_lion
   end
 
   option "without-docs", "Don't build man pages"
