@@ -133,6 +133,14 @@ class FormulaAuditor
     if formula.class < GithubGistFormula
       problem "GithubGistFormula is deprecated, use Formula instead"
     end
+
+    if formula.class < ScriptFileFormula
+      problem "ScriptFileFormula is deprecated, use Formula instead"
+    end
+
+    if formula.class < AmazonWebServicesFormula
+      problem "AmazonWebServicesFormula is deprecated, use Formula instead"
+    end
   end
 
   @@aliases ||= Formula.aliases
@@ -318,6 +326,8 @@ class FormulaAuditor
       case p
       when %r[^http://ftp\.gnu\.org/]
         problem "ftp.gnu.org urls should be https://, not http:// (url is #{p})."
+      when %r[^http://archive\.apache\.org/]
+        problem "archive.apache.org urls should be https://, not http (url is #{p})."
       when %r[^http://code\.google\.com/]
         problem "code.google.com urls should be https://, not http (url is #{p})."
       when %r[^http://fossies\.org/]
@@ -836,9 +846,15 @@ class ResourceAuditor
 
     case checksum.hash_type
     when :md5
-      problem "MD5 checksums are deprecated, please use SHA1 or SHA256"
+      problem "MD5 checksums are deprecated, please use SHA256"
       return
-    when :sha1   then len = 40
+    when :sha1
+      if ARGV.include? "--strict"
+        problem "SHA1 checksums are deprecated, please use SHA256"
+        return
+      else
+        len = 40
+      end
     when :sha256 then len = 64
     end
 
