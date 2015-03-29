@@ -1,15 +1,14 @@
 # Note that x.even are stable releases, x.odd are devel releases
 class Node < Formula
   homepage "https://nodejs.org/"
-  url "https://nodejs.org/dist/v0.12.0/node-v0.12.0.tar.gz"
-  sha256 "9700e23af4e9b3643af48cef5f2ad20a1331ff531a12154eef2bfb0bb1682e32"
+  url "https://nodejs.org/dist/v0.12.1/node-v0.12.1.tar.gz"
+  sha256 "30693376519c9736bcb22d44513252aee1d9463d78ac6c744ecb6d13fd91d680"
   head "https://github.com/joyent/node.git", :branch => "v0.12"
 
   bottle do
-    revision 1
-    sha1 "cf47b47fca78022a299f5353b968fb703fb90bc9" => :yosemite
-    sha1 "a0fc2c129428a0fcd50169857b240039d328463b" => :mavericks
-    sha1 "8312e7ea6ffec58e39ec7cc1f8671847a9d7b4bf" => :mountain_lion
+    sha256 "72b57fd6f990485ac016d7dbabb2515a0006fd14334aa95ac2ac36a3d0b035bf" => :yosemite
+    sha256 "28a56d62225eb653c4b581efaa8be1f9bcf7052060e4d906020d4d700de38cce" => :mavericks
+    sha256 "85a333f82e2dc0ac44994567e87afdec8e899d296b1fb809fc2803e2df9f1076" => :mountain_lion
   end
 
   option "with-debug", "Build with debugger hooks"
@@ -31,8 +30,8 @@ class Node < Formula
   end
 
   resource "npm" do
-    url "https://registry.npmjs.org/npm/-/npm-2.5.1.tgz"
-    sha1 "23e4b0fdd1ffced7d835780e692a9e5a0125bb02"
+    url "https://registry.npmjs.org/npm/-/npm-2.7.3.tgz"
+    sha256 "8cc5c6e8304b0b934027a8211173147911dac623f2f84bb6477ea3121f1a839d"
   end
 
   def install

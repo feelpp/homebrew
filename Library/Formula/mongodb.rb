@@ -3,22 +3,22 @@ require "language/go"
 
 class Mongodb < Formula
   homepage "https://www.mongodb.org/"
-
-  url "https://fastdl.mongodb.org/src/mongodb-src-r3.0.0.tar.gz"
-  sha1 "f68219cc1226f164676f9c74909e82383e9215b8"
+  url "https://fastdl.mongodb.org/src/mongodb-src-r3.0.1.tar.gz"
+  sha256 "68980641996a3a4b5440e12d343c2de98bb7f350fbc0c8327a674094d6e11213"
 
   # Mongo HEAD now requires mongo-tools, and Golang
   # https://jira.mongodb.org/browse/SERVER-15806
   depends_on "go" => :build
   go_resource "github.com/mongodb/mongo-tools" do
-    url "https://github.com/mongodb/mongo-tools.git", :tag => "r3.0.0"
+    url "https://github.com/mongodb/mongo-tools.git",
+      :tag => "r3.0.1",
+      :revision => "bc08e57abb71b2edd1cc3ab8f9f013409718f197"
   end
 
-
   bottle do
-    sha1 "1dbdf906491863fbd4b264c1d8c39c1dd795fc5f" => :yosemite
-    sha1 "2808b95d23a2b7c361f81a5d599a4047e9f57ef3" => :mavericks
-    sha1 "fde052a4159aac45108f81e4a9fc08a2dc153938" => :mountain_lion
+    sha256 "3761153651660207c145da9eac659c7b8ddaed879b44f6127c534d5f79e32f46" => :yosemite
+    sha256 "f761d0e8d97fcc924c466165a6193c7c8169153b9afd33ca77b35bbb3a16b5e7" => :mavericks
+    sha256 "7b212a87996b0e3cc9a9eddb180ec41bfbe9e056528c5f060029d94c18a8828a" => :mountain_lion
   end
 
   option "with-boost", "Compile using installed boost, not the version shipped with mongodb"
@@ -114,12 +114,12 @@ class Mongodb < Formula
       <key>HardResourceLimits</key>
       <dict>
         <key>NumberOfFiles</key>
-        <integer>1024</integer>
+        <integer>65536</integer>
       </dict>
       <key>SoftResourceLimits</key>
       <dict>
         <key>NumberOfFiles</key>
-        <integer>1024</integer>
+        <integer>65536</integer>
       </dict>
     </dict>
     </plist>

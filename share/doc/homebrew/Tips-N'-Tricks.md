@@ -43,7 +43,7 @@ source `brew --repository`/Library/Contributions/brew_bash_completion.sh
 ```
 
 
-### ZSH
+### Zsh
 Run in terminal (may require `sudo`):
 
 ```zsh
@@ -123,3 +123,7 @@ This sets the HOMEBREW_NO_EMOJI environment variable, causing homebrew to hide a
 ## Sublime text: Syntax for formulae including the diff
 
 In Sublime Text 2/3, you can use Package Control to install [Homebrew-formula-syntax](https://github.com/samueljohn/Homebrew-formula-syntax).
+
+## Vim Syntax for formulae including the diff
+
+If you are vim user, you can install [brew.vim](https://github.com/xu-cheng/brew.vim) plugin.

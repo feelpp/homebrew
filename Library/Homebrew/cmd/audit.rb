@@ -187,7 +187,7 @@ class FormulaAuditor
               depends_on "#{dep}" => :run
           EOS
         when "git"
-          problem "Use `depends_on :git` instead of `depends_on 'git'`"
+          problem "Don't use git as a dependency"
         when "mercurial"
           problem "Use `depends_on :hg` instead of `depends_on 'mercurial'`"
         when "ruby"
@@ -301,6 +301,10 @@ class FormulaAuditor
       problem "Github Pages links should be https:// (URL is #{homepage})."
     end
 
+    if homepage =~ %r[^http://[^/]*\.apache\.org]
+      problem "Apache homepages should be https:// links (URL is #{homepage})."
+    end
+
     # There's an auto-redirect here, but this mistake is incredibly common too.
     # Only applies to the homepage and subdomains for now, not the FTP links.
     if homepage =~ %r[^http://((?:build|cloud|developer|download|extensions|git|glade|help|library|live|nagios|news|people|projects|rt|static|wiki|www)\.)?gnome\.org]
@@ -311,7 +315,7 @@ class FormulaAuditor
 
     # Check GNU urls; doesn't apply to mirrors
     urls.grep(%r[^(?:https?|ftp)://(?!alpha).+/gnu/]) do |u|
-      problem "\"ftpmirror.gnu.org\" is preferred for GNU software (url is #{u})."
+      problem "\"http://ftpmirror.gnu.org\" is preferred for GNU software (url is #{u})."
     end
 
     # the rest of the checks apply to mirrors as well.
@@ -326,8 +330,8 @@ class FormulaAuditor
       case p
       when %r[^http://ftp\.gnu\.org/]
         problem "ftp.gnu.org urls should be https://, not http:// (url is #{p})."
-      when %r[^http://archive\.apache\.org/]
-        problem "archive.apache.org urls should be https://, not http (url is #{p})."
+      when %r[^http://[^/]*\.apache\.org/]
+        problem "Apache urls should be https://, not http (url is #{p})."
       when %r[^http://code\.google\.com/]
         problem "code.google.com urls should be https://, not http (url is #{p})."
       when %r[^http://fossies\.org/]
@@ -714,8 +718,10 @@ class FormulaAuditor
     if @strict
       if line =~ /system (["'][^"' ]*(?:\s[^"' ]*)+["'])/
         bad_system = $1
-        good_system = bad_system.gsub(" ", "\", \"")
-        problem "Use `system #{good_system}` instead of `system #{bad_system}` "
+        unless %w[| < > & ;].any? { |c| bad_system.include? c }
+          good_system = bad_system.gsub(" ", "\", \"")
+          problem "Use `system #{good_system}` instead of `system #{bad_system}` "
+        end
       end
 
       if line =~ /(require ["']formula["'])/

@@ -247,7 +247,7 @@ You can double-check which libraries a binary links to with the `otool` command 
 	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1213.0.0)
 
 
-## Specifying gems, Python modules etc. as dependencies
+## Specifying gems, Python modules, Go projects, etc. as dependencies
 
 Homebrew doesn’t package already packaged language-specific libraries. These should be installed directly from `gem`/`cpan`/`pip` etc.
 
@@ -266,9 +266,11 @@ class Foo < Formula
 end
 ```
 
-See [jrnl](https://github.com/Homebrew/homebrew/blob/master/Library/Formula/jrnl.rb) for an example of a formula that does this well. The end-result means the user doesn't have to faff with `pip` or Python and can just run `jrnl`.
+[jrnl](https://github.com/Homebrew/homebrew/blob/master/Library/Formula/jrnl.rb) is an example of a formula that does this well. The end-result means the user doesn't have to faff with `pip` or Python and can just run `jrnl`.
 
-[This script](https://raw.githubusercontent.com/tdsmith/labmisc/master/mkpydeps) can help you generate resource stanzas for the dependencies of your Python application.
+[homebrew-pypi-poet](https://github.com/tdsmith/homebrew-pypi-poet) can help you generate resource stanzas for the dependencies of your Python application.
+
+Similarly, [homebrew-go-resources](https://github.com/samertm/homebrew-go-resources) can help you generate go\_resource stanzas for the dependencies of your go application.
 
 If your formula needs a gem or python module and it can't be made into a resource you’ll need to check for these external dependencies:
 
@@ -375,11 +377,11 @@ Now you just need to push back to GitHub.
 
 If you haven’t forked Homebrew yet, [go to the repo and hit the fork button](https://github.com/Homebrew/homebrew).
 
-If you have already forked Homebrew on Github, then you can manually push (just make sure you have been pulling from the Homebrew/homebrew master):
+If you have already forked Homebrew on GitHub, then you can manually push (just make sure you have been pulling from the Homebrew/homebrew master):
 
     git push git@github.com:myname/homebrew.git <what-you-called-your-branch>
 
-Now, please open a Pull Request (on your github repo page) for new and updated brews.
+Now, please open a Pull Request (on your GitHub repo page) for new and updated brews.
 
 *   One formula per commit; one commit per formula
 *   Keep merge commits out of the request
@@ -591,7 +593,7 @@ You can test if the "devel" spec is in use with `build.devel?`.
 
 ## Compiler selection
 
-Sometimes a package fails to build when using a certain compiler. Since recent XCode no longer includes a GCC compiler, we cannot simply force the use of GCC. Instead, the correct way to declare this is the `fails_with` DSL method. A properly constructed `fails_with` block documents the latest compiler build version known to cause compilation to fail, and the cause of the failure. For example:
+Sometimes a package fails to build when using a certain compiler. Since recent Xcode no longer includes a GCC compiler, we cannot simply force the use of GCC. Instead, the correct way to declare this is the `fails_with` DSL method. A properly constructed `fails_with` block documents the latest compiler build version known to cause compilation to fail, and the cause of the failure. For example:
 
 ```ruby
 fails_with :llvm do

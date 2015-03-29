@@ -4,16 +4,17 @@ class Python3 < Formula
   sha1 "7ca5cd664598bea96eec105aa6453223bb6b4456"
 
   bottle do
-    sha1 "b8a3b54597788f38fe056c51b1de207c3e5287fb" => :yosemite
-    sha1 "b8a7e7370052734df0fe4286a4f86993745ddd12" => :mavericks
-    sha1 "c367a9fd8fb3480a3515df39a31dea70c16174d5" => :mountain_lion
+    revision 6
+    sha256 "cf103f02fc439dff483d775fa4a5d5de884c3e83ab7cda9135057bf69a67aca8" => :yosemite
+    sha256 "b1d41d85fd4cfe0ff731ee4af7b0704294eed69b2624500f23711dcf6c023596" => :mavericks
+    sha256 "3c25e33665e4bb702ed359ddb2daa730721fa5ddd9cdb6c225e6c009205a3cdb" => :mountain_lion
   end
 
   head "https://hg.python.org/cpython", :using => :hg
 
   devel do
-    url "https://www.python.org/ftp/python/3.5.0/Python-3.5.0a1.tgz"
-    sha1 "e9441525f37d65623f5efab0b7ca726ab52b1fb9"
+    url "https://www.python.org/ftp/python/3.5.0/Python-3.5.0a2.tgz"
+    sha256 "b15ba6931f5c7231577f3608958ae6616872da536eca3ba8aced820cdda15a18"
   end
 
   option :universal
@@ -143,6 +144,13 @@ class Python3 < Formula
     # Remove the site-packages that Python created in its Cellar.
     site_packages_cellar.rmtree
 
+    # These makevars are available through distutils.sysconfig at runtime and
+    # some third-party software packages depend on them
+    inreplace frameworks/"Python.framework/Versions/#{xy}/lib/python#{xy}/config-#{xy}m/Makefile" do |s|
+      s.change_make_var! "LINKFORSHARED",
+                         "-u _PyMac_Error #{opt_prefix}/Frameworks/Python.framework/Versions/#{xy}/Python"
+    end
+
     %w[setuptools pip].each do |r|
       (libexec/r).install resource(r)
     end
@@ -258,16 +266,6 @@ class Python3 < Formula
           long_prefix = re.compile(r'#{rack}/[0-9\._abrc]+/Frameworks/Python\.framework/Versions/#{xy}/lib/python#{xy}/site-packages')
           sys.path = [long_prefix.sub('#{site_packages}', p) for p in sys.path]
 
-          # LINKFORSHARED (and python-config --ldflags) return the
-          # full path to the lib (yes, "Python" is actually the lib, not a
-          # dir) so that third-party software does not need to add the
-          # -F/#{HOMEBREW_PREFIX}/Frameworks switch.
-          try:
-              from _sysconfigdata import build_time_vars
-              build_time_vars['LINKFORSHARED'] = '-u _PyMac_Error #{opt_prefix}/Frameworks/Python.framework/Versions/#{xy}/Python'
-          except:
-              pass  # remember: don't print here. Better to fail silently.
-
           # Set the sys.executable to use the opt_prefix
           sys.executable = '#{opt_bin}/python#{xy}'
     EOF
@@ -275,8 +273,8 @@ class Python3 < Formula
 
   def caveats
     text = <<-EOS.undent
-      Pip has been installed. To update it
-        pip3 install --upgrade pip
+      Pip and setuptools have been installed. To update them
+        pip3 install --upgrade pip setuptools
 
       You can install Python packages with
         pip3 install <package>
