@@ -94,6 +94,10 @@ module Homebrew
       revision = `git rev-parse --short HEAD`.strip
       branch = `git symbolic-ref --short HEAD`.strip
 
+      unless branch == "master"
+        opoo "Current branch is #{branch}: do you need to pull inside master?"
+      end
+
       pull_url url
 
       changed_formulae = []
@@ -121,7 +125,7 @@ module Homebrew
       unless ARGV.include? '--bottle'
         changed_formulae.each do |f|
           next unless f.bottle
-          opoo "#{f.name} has a bottle: do you need to update it with --bottle?"
+          opoo "#{f.full_name} has a bottle: do you need to update it with --bottle?"
         end
       end
 
@@ -170,15 +174,16 @@ module Homebrew
           changed_formulae.each do |f|
             ohai "Publishing on Bintray:"
             package = Bintray.package f.name
-            bottle = Bottle.new(f, f.bottle_specification)
-            version = Bintray.version(bottle.url)
+            version = f.pkg_version
             curl "--silent", "--fail",
               "-u#{bintray_user}:#{bintray_key}", "-X", "POST",
               "https://api.bintray.com/content/homebrew/#{repo}/#{package}/#{version}/publish"
             puts
+            sleep 2
+            safe_system "brew", "fetch", "--retry", "--force-bottle", f.full_name
           end
         else
-          opoo "Set BINTRAY_USER and BINTRAY_KEY to add new formula bottles on Bintray!"
+          opoo "You must set BINTRAY_USER and BINTRAY_KEY to add or update bottles on Bintray!"
         end
       end
 
@@ -187,9 +192,9 @@ module Homebrew
 
       if ARGV.include? '--install'
         changed_formulae.each do |f|
-          ohai "Installing #{f.name}"
+          ohai "Installing #{f.full_name}"
           install = f.installed? ? 'upgrade' : 'install'
-          safe_system 'brew', install, '--debug', f.name
+          safe_system 'brew', install, '--debug', f.full_name
         end
       end
     end

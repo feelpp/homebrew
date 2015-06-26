@@ -1,16 +1,14 @@
 class Openssl < Formula
+  desc "OpenSSL SSL/TLS cryptography library"
   homepage "https://openssl.org"
-  url "https://www.openssl.org/source/openssl-1.0.2a.tar.gz"
-  mirror "https://raw.githubusercontent.com/DomT4/LibreMirror/master/OpenSSL/openssl-1.0.2a.tar.gz"
-  sha256 "15b6393c20030aab02c8e2fe0243cb1d1d18062f6c095d67bca91871dc7f324a"
-  # Work around this being parsed as an alpha version by our
-  # version detection code.
-  version "1.0.2a-1"
+  url "https://www.openssl.org/source/openssl-1.0.2c.tar.gz"
+  mirror "https://raw.githubusercontent.com/DomT4/LibreMirror/master/OpenSSL/openssl-1.0.2c.tar.gz"
+  sha256 "0038ba37f35a6367c58f17a7a7f687953ef8ce4f9684bbdec63e62515ed36a83"
 
   bottle do
-    sha256 "61547bc1716db058c4e5a99e91067783031e8d47acfea9a8742e9899b363b463" => :yosemite
-    sha256 "bff2a6db8e56255c85a49ccbad6cc8611bc47d1482ba630c632c6f9ca7cd7f35" => :mavericks
-    sha256 "1e985e8bfb5f3c3041c6e022561aa137643895b7bd920654c85197268aed3637" => :mountain_lion
+    sha256 "b8f497f8d75d04fbeba3adb93af9823f49f4441583f8e007ccac8ff0aa38d3ae" => :yosemite
+    sha256 "8ec459f70f91522226280af48d21fa35e612c0373234cdb1cb06fea3bc9f58fc" => :mavericks
+    sha256 "24c387f6aef2464f1003532de09e1fd17d66da900633719a51a6adca6c04d598" => :mountain_lion
   end
 
   option :universal
@@ -29,13 +27,13 @@ class Openssl < Formula
   end
 
   def configure_args; %W[
-      --prefix=#{prefix}
-      --openssldir=#{openssldir}
-      no-ssl2
-      zlib-dynamic
-      shared
-      enable-cms
-    ]
+    --prefix=#{prefix}
+    --openssldir=#{openssldir}
+    no-ssl2
+    zlib-dynamic
+    shared
+    enable-cms
+  ]
   end
 
   def install

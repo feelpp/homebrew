@@ -1,13 +1,14 @@
 class Stunnel < Formula
+  desc "SSL tunneling program"
   homepage "https://www.stunnel.org/"
-  url "https://www.stunnel.org/downloads/stunnel-5.14.tar.gz"
-  mirror "http://www.usenix.org.uk/mirrors/stunnel/stunnel-5.14.tar.gz"
-  sha256 "2197b4fc1db82eba69c8baf1fac30f0767af26e9f8c7e9e1d5a4a8fbb264695a"
+  url "https://www.stunnel.org/downloads/stunnel-5.19.tar.gz"
+  mirror "https://www.usenix.org.uk/mirrors/stunnel/stunnel-5.19.tar.gz"
+  sha256 "0b543242cf26649acfdd9f00de564c3e8de7ac2237d53935ffdc7eb24f4d556d"
 
   bottle do
-    sha256 "a38150e4d779263d921d4b411e1475eadeb1f7945c00c1b723917f63d8b897e7" => :yosemite
-    sha256 "5da838369fef7c2bd06742e1c5608fb06be510fb51446165c37def6fbf999005" => :mavericks
-    sha256 "90e05e44e614f7a2f07e500aee7a1839167274be9fe1e097f92d42671946ad9a" => :mountain_lion
+    sha256 "8b61746cf29963ee838bb356b25703e23e37167eaad4dfb361d4a03a89c9dd4d" => :yosemite
+    sha256 "757f84ce2b30af81b9f69c294b58593c89c161bfcd9f99c311efae5c0517f0f4" => :mavericks
+    sha256 "cee072e572ac05a5ef891bd8a39fd363b39e0a4293f67da3615e2b97a60918e0" => :mountain_lion
   end
 
   # Please revision me whenever OpenSSL is updated
@@ -43,7 +44,7 @@ class Stunnel < Formula
       # 1.commonName                  = DNS alias of your server
       # 2.commonName                  = DNS alias of your server
       # ...
-      # See http://home.netscape.com/eng/security/ssl_2.0_certificate.html
+      # See https://web.archive.org/web/20020207210031/http://home.netscape.com/eng/security/ssl_2.0_certificate.html
       # to see how Netscape understands commonName.
 
       [ cert_type ]

@@ -1,13 +1,14 @@
 class Awscli < Formula
+  desc "Official Amazon AWS command-line interface"
   homepage "https://aws.amazon.com/cli/"
-  url "https://pypi.python.org/packages/source/a/awscli/awscli-1.7.8.tar.gz"
-  sha1 "294a7230402bb1dc11981bc4e6136bfaa04a602b"
+  url "https://pypi.python.org/packages/source/a/awscli/awscli-1.7.36.tar.gz"
+  sha256 "81d5f021d8d5c3df22e9d66521fb248454c31ad4bb4bdfc18e559a3997fabfac"
 
   bottle do
     cellar :any
-    sha1 "d85e8a692ae44d4c193b1615d4aa001e2455978b" => :yosemite
-    sha1 "ff411e5099d71f4bbb8220d7de8416584d80815c" => :mavericks
-    sha1 "76a335afe68821b74df710376ace5341b9d5e037" => :mountain_lion
+    sha256 "c45507aeee27e0b93a89c91be84720bcc2c49d22e8702dadee0377086ebdb43e" => :yosemite
+    sha256 "47a486397dffbd4e3a8d16f02b112d7872c83b393c44c44c4ca0eab5df575b3f" => :mavericks
+    sha256 "f57939208186d2d265dedc609a5b7841c59555d89622a3f3c797375837ac1421" => :mountain_lion
   end
 
   head do
@@ -19,58 +20,57 @@ class Awscli < Formula
 
     resource "bcdoc" do
       url "https://github.com/boto/bcdoc.git", :branch => "develop"
-    end
-
-    resource "jmespath" do
       url "https://github.com/boto/jmespath.git", :branch => "develop"
     end
   end
 
-  depends_on :python if MacOS.version <= :snow_leopard
+  # Use :python on Lion to avoid urllib3 warning
+  # https://github.com/Homebrew/homebrew/pull/37240
+  depends_on :python if MacOS.version <= :lion
 
   resource "six" do
     url "https://pypi.python.org/packages/source/s/six/six-1.9.0.tar.gz"
-    sha1 "d168e6d01f0900875c6ecebc97da72d0fda31129"
+    sha256 "e24052411fc4fbd1f672635537c3fc2330d9481b18c0317695b46259512c91d5"
   end
 
   resource "python-dateutil" do
-    url "https://pypi.python.org/packages/source/p/python-dateutil/python-dateutil-2.4.0.tar.gz"
-    sha1 "159081a4c5b3602ab440a7db305f987c00ee8c6d"
+    url "https://pypi.python.org/packages/source/p/python-dateutil/python-dateutil-2.4.2.tar.gz"
+    sha256 "3e95445c1db500a344079a47b171c45ef18f57d188dffdb0e4165c71bea8eb3d"
   end
 
   resource "colorama" do
-    url "https://pypi.python.org/packages/source/c/colorama/colorama-0.2.5.tar.gz"
-    sha1 "87507210c5a7d400b27d23e8dd42734198663d66"
+    url "https://pypi.python.org/packages/source/c/colorama/colorama-0.3.3.tar.gz"
+    sha256 "eb21f2ba718fbf357afdfdf6f641ab393901c7ca8d9f37edd0bee4806ffa269c"
   end
 
   resource "jmespath" do
-    url "https://pypi.python.org/packages/source/j/jmespath/jmespath-0.6.1.tar.gz"
-    sha1 "f3fc294e5225f2529968f58eb75c9da91fbeb9c1"
+    url "https://pypi.python.org/packages/source/j/jmespath/jmespath-0.7.1.tar.gz"
+    sha256 "cd5a12ee3dfa470283a020a35e69e83b0700d44fe413014fd35ad5584c5f5fd1"
   end
 
   resource "botocore" do
-    url "https://pypi.python.org/packages/source/b/botocore/botocore-0.89.0.tar.gz"
-    sha1 "15a4b154b49bc967d921253875cf41ff8f2b6816"
+    url "https://pypi.python.org/packages/source/b/botocore/botocore-1.0.1.tar.gz"
+    sha256 "87773ebc7b70206506836f79bab8300e963e522d25c60f2d5992643745556a8b"
   end
 
   resource "docutils" do
     url "https://pypi.python.org/packages/source/d/docutils/docutils-0.12.tar.gz"
-    sha1 "002450621b33c5690060345b0aac25bc2426d675"
+    sha256 "c7db717810ab6965f66c8cf0398a98c9d8df982da39b4cd7f162911eb89596fa"
   end
 
   resource "bcdoc" do
-    url "https://pypi.python.org/packages/source/b/bcdoc/bcdoc-0.12.2.tar.gz"
-    sha1 "31b2a714c2803658d9d028c8edf4623fd0daaf18"
+    url "https://pypi.python.org/packages/source/b/bcdoc/bcdoc-0.16.0.tar.gz"
+    sha256 "f568c182e06883becf7196f227052435cffd45604700c82362ca77d3427b6202"
   end
 
   resource "pyasn1" do
     url "https://pypi.python.org/packages/source/p/pyasn1/pyasn1-0.1.7.tar.gz"
-    sha1 "e32b91c5a5d9609fb1d07d8685a884bab22ca6d0"
+    sha256 "e4f81d53c533f6bd9526b047f047f7b101c24ab17339c1a7ad8f98b25c101eab"
   end
 
   resource "rsa" do
-    url "https://pypi.python.org/packages/source/r/rsa/rsa-3.1.2.tar.gz"
-    sha1 "ebf54ad3fff8bc1df09f5d777d5a913e5aef8df5"
+    url "https://pypi.python.org/packages/source/r/rsa/rsa-3.1.4.tar.gz"
+    sha256 "e2b0b05936c276b1edd2e1525553233b666df9e29b5c3ba223eed738277c82a0"
   end
 
   def install

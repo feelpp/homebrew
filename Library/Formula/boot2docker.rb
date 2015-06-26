@@ -1,15 +1,17 @@
 class Boot2docker < Formula
+  desc "Lightweight Linux for Docker"
   homepage "https://github.com/boot2docker/boot2docker-cli"
   # Boot2docker and docker are generally updated at the same time.
   # Please update the version of docker too
-  url "https://github.com/boot2docker/boot2docker-cli.git", :tag => "v1.5.0",
-    :revision => "ccd9032caf251ca63edaf3a0808456fa5d5f9057"
+  url "https://github.com/boot2docker/boot2docker-cli.git", :tag => "v1.7.0",
+    :revision => "7d89508118ffbf5f3313cfa8a10d563942e3a643"
   head "https://github.com/boot2docker/boot2docker-cli.git"
 
   bottle do
-    sha1 "9edfe7c2b3e6af2ab1fae03db849620a5eede333" => :yosemite
-    sha1 "6fb28f39d6885f3fdcf71fde8637ec0e37c97084" => :mavericks
-    sha1 "135046284eeae147622da8961508e18dd3578ae5" => :mountain_lion
+    cellar :any
+    sha256 "ea0db7efe7116c1d5795c8f28c89d84ce531e77b976bf888449aa5746a68c27c" => :yosemite
+    sha256 "f411a66bb54e284941209b7030804ba58eab90b40276d62a366895998832e487" => :mavericks
+    sha256 "548ef74e0660b4afcac2d5506f08bff302896e3179cf02617cb18d1513b04dcc" => :mountain_lion
   end
 
   depends_on "docker" => :recommended

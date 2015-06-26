@@ -1,7 +1,8 @@
 class Cpanminus < Formula
+  desc "Get, unpack, build, and install modules from CPAN"
   homepage "https://github.com/miyagawa/cpanminus"
-  url "https://github.com/miyagawa/cpanminus/archive/1.7027.tar.gz"
-  sha256 "cf65b0d316d027484f0c610863b7e8a85bbe275a2939bdefb40b9176dfe9a489"
+  url "https://github.com/miyagawa/cpanminus/archive/1.7038.tar.gz"
+  sha256 "00becccef59a628134a4099522c549e8aec60662e5558daa7999ad8a33ad339c"
 
   head "https://github.com/miyagawa/cpanminus.git"
 

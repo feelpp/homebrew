@@ -1,14 +1,15 @@
 class Sbcl < Formula
+  desc "Steel Bank Common Lisp system"
   homepage "http://www.sbcl.org/"
-  url "https://downloads.sourceforge.net/project/sbcl/sbcl/1.2.9/sbcl-1.2.9-source.tar.bz2"
-  sha1 "788e38d4c64fa1f99a5297dce72e87f3958e98a1"
+  url "https://downloads.sourceforge.net/project/sbcl/sbcl/1.2.12/sbcl-1.2.12-source.tar.bz2"
+  sha256 "b65bc878f15b8dc87582498780714e06c32a161aaa579e6f0216fd372247c9ad"
 
   head "git://sbcl.git.sourceforge.net/gitroot/sbcl/sbcl.git"
 
   bottle do
-    sha256 "4b455f19a7c9508dab431f3f317a94afe96b4e8f5dda8ec33caad5112f904319" => :yosemite
-    sha256 "472e3b47c30712e7d1b09b92eaae561cde95c9a754eeed53a10c9a0f67cedcc8" => :mavericks
-    sha256 "7440077b7b6bec6de8775a0dc1fc5ce4d173d255094dc208304441d2cdb669be" => :mountain_lion
+    sha256 "88af924875adfb1d6526a4642a516fb9e02f22e0ff01f73306e60516fe1cf12a" => :yosemite
+    sha256 "b6275cda423c3ff0e2b38ad864eb9ec5ea7ece88dfb3e69ef0b42c8a35f6d415" => :mavericks
+    sha256 "e05b809845cd4f80a8b821d80c11f568cbd8f3ae15b44ab1bcdb2d55a738486f" => :mountain_lion
   end
 
   fails_with :llvm do
@@ -53,10 +54,6 @@ class Sbcl < Formula
     url "https://trac.macports.org/export/88830/trunk/dports/lang/sbcl/files/patch-use-mach-exception-handler.diff"
     sha1 "4d08e56e7e261db47ffdfef044149b001e6cd7c1"
   end
-
-  # Restore parallel build support.
-  # See: https://bugs.launchpad.net/sbcl/+bug/1434768
-  patch :DATA
 
   def write_features
     features = []
@@ -109,15 +106,3 @@ class Sbcl < Formula
     assert_equal "4", output.strip
   end
 end
-__END__
---- a/contrib/asdf/Makefile
-+++ b/contrib/asdf/Makefile
-@@ -8,7 +8,7 @@ $(UIOP_FASL):: uiop.lisp ../../output/sbcl.core
-	mkdir -p $(DEST)
-	$(SBCL) --eval '(compile-file #p"SYS:CONTRIB;ASDF;UIOP.LISP" :output-file (parse-native-namestring "$@"))' </dev/null
-
--$(ASDF_FASL):: asdf.lisp ../../output/sbcl.core
-+$(ASDF_FASL):: asdf.lisp ../../output/sbcl.core $(UIOP_FASL)
-	if [ -d asdf-upstream ] ; then rm -rf asdf-upstream ; fi
-	mkdir -p $(DEST)
-	$(SBCL) --eval '(compile-file #p"SYS:CONTRIB;ASDF;ASDF.LISP" :output-file (parse-native-namestring "$@"))' </dev/null

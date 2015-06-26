@@ -1,13 +1,14 @@
 class Passenger < Formula
+  desc "Server for Ruby, Python, and Node.js apps via Apache/NGINX"
   homepage "https://www.phusionpassenger.com/"
-  url "https://s3.amazonaws.com/phusion-passenger/releases/passenger-5.0.5.tar.gz"
-  sha256 '4a0d696cf6a702a97dd74aa9a377a637f547887b4afc6ee574329d87326bfcdc'
+  url "https://s3.amazonaws.com/phusion-passenger/releases/passenger-5.0.11.tar.gz"
+  sha256 '5f90508c9192393f227664ae01a236147f9fe05e249bad1bccb4f921e9239c01'
   head "https://github.com/phusion/passenger.git"
 
   bottle do
-    sha256 "d99765112723d03551c047763a65aec30a513c6db0b6727e3bf68882b2dbf183" => :yosemite
-    sha256 "fcd5ab6f4afb63df0187ebb2875e75909d9159745f793614e222a4d9c0ae2d1e" => :mavericks
-    sha256 "1adfa4fbdad3ce5eb6b4959e6bf2d2ff280f7f44c2da479db2497b5c0b59d656" => :mountain_lion
+    sha256 "e052f1457f2a94e2aa3d76fca287720f85c4be48595c02fdd9800631b3bbf013" => :yosemite
+    sha256 "de0430037252edd2e48ef2a6474f81a645352a4b0108954f7930e5cf9f29b739" => :mavericks
+    sha256 "58784222545b249e8a6d0c68ac14d924ffb37070b05a3f84dece82c265b5c702" => :mountain_lion
   end
 
   depends_on "pcre"
@@ -70,8 +71,6 @@ class Passenger < Formula
 
   test do
     ruby_libdir = `#{HOMEBREW_PREFIX}/bin/passenger-config --ruby-libdir`.strip
-    if ruby_libdir != (libexec/"lib").to_s
-      fail "Invalid installation"
-    end
+    assert_equal "#{libexec}/lib", ruby_libdir
   end
 end

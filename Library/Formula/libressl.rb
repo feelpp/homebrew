@@ -1,13 +1,14 @@
 class Libressl < Formula
+  desc "Version of the SSL/TLS protocol forked from OpenSSL"
   homepage "http://www.libressl.org/"
-  url "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz"
-  mirror "https://raw.githubusercontent.com/DomT4/LibreMirror/master/LibreSSL/libressl-2.1.6.tar.gz"
-  sha256 "4f826dd97b3b8001707073bde8401493f9cd4668465b481c042d28e3973653a8"
+  url "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.2.0.tar.gz"
+  mirror "https://raw.githubusercontent.com/DomT4/LibreMirror/master/LibreSSL/libressl-2.2.0.tar.gz"
+  sha256 "9690d8f38a5d48425395452eeb305b05bb0f560cd96e0ee30f370d4f16563040"
 
   bottle do
-    sha256 "8de261eb5255a695567e641bab92bc4c6f09ed36806de0b49a98b6d9b6a3caf7" => :yosemite
-    sha256 "0d094c6477b38b47a96fd4100c08fe70c502bd910943ef091990cbee110f98e4" => :mavericks
-    sha256 "2acfff0e515dbcfea2b299ce136efcf7c9f4fec7484ccdad1c8cedd3672a69ef" => :mountain_lion
+    sha256 "96d88a9de52cd8bc8b44c351f98a40360ded9a9d3788474a06b024201cc3f638" => :yosemite
+    sha256 "42edf353873147a1f37058dd6440cf3c65748468683663619b7c163c95d5288e" => :mavericks
+    sha256 "e1b78e175917e469b3ac9e6af957f913bf2dac9fb5913ebb7896f9d5253797a7" => :mountain_lion
   end
 
   head do
@@ -36,8 +37,8 @@ class Libressl < Formula
     system "make", "install"
 
     # Install the dummy openssl.cnf file to stop runtime warnings.
-    mkdir_p "#{etc}/libressl"
-    cp "apps/openssl.cnf", "#{etc}/libressl"
+    (etc/"libressl/certs").mkpath
+    (etc/"libressl").install "apps/openssl.cnf"
   end
 
   def post_install
@@ -53,7 +54,10 @@ class Libressl < Formula
   def caveats; <<-EOS.undent
     A CA file has been bootstrapped using certificates from the system
     keychain. To add additional certificates, place .pem files in
-      #{etc}/libressl
+      #{etc}/libressl/certs
+
+    and run
+      #{opt_bin}/openssl certhash #{etc}/libressl/certs
     EOS
   end
 

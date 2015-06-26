@@ -16,14 +16,15 @@ class RRequirement < Requirement
 end
 
 class Monetdb < Formula
+  desc "Column-store database"
   homepage "https://www.monetdb.org/"
-  url "https://dev.monetdb.org/downloads/sources/Oct2014-SP2/MonetDB-11.19.9.zip"
-  sha1 "dde2cad29d2f5bbdd2e2845ee0663969eb0aeb3f"
+  url "https://dev.monetdb.org/downloads/sources/Oct2014-SP4/MonetDB-11.19.15.zip"
+  sha256 "bb32560bd66496581416abcf8f84dfe13616f405092f9ee570e1411534af635c"
 
   bottle do
-    sha1 "a277df350c7758eee0dd9082f5b369da4aeb67b3" => :yosemite
-    sha1 "360ce097dd63e8af6caf94f0a1c422491d965c9b" => :mavericks
-    sha1 "d63d44cbc488f5f4d40d5ed169e92d2ece4964d6" => :mountain_lion
+    sha256 "41605243b56eb90d354d970de4815f09e79f0920494e1a698457c69877018ac1" => :yosemite
+    sha256 "7b1b973ac5e55cfd3be69279ae2cb56bde3a45ed09a7b8997df6aa0a56c78fd7" => :mavericks
+    sha256 "477c96cd73680b694972e4cf9b32ade1d3d4f1fcb2a1c254938f21da5a46667d" => :mountain_lion
   end
 
   head do

@@ -1,17 +1,17 @@
-require 'formula'
-
 class Mpd < Formula
+  desc "Music Player Daemon"
   homepage "http://www.musicpd.org/"
 
   stable do
-    url "http://www.musicpd.org/download/mpd/0.19/mpd-0.19.9.tar.xz"
-    sha1 "6683bee5f132eda318c5a61ec14b2df8d9164d60"
+    url "http://www.musicpd.org/download/mpd/0.19/mpd-0.19.10.tar.xz"
+    sha256 "c386eb3d22f98dc993b5ae3c272f969aa7763713483c6800040ebf1791b15851"
   end
 
   bottle do
-    sha1 "dded981259ff9d3529b311f8fd48f3713a4e5811" => :yosemite
-    sha1 "8b2252c6fb581ed97ea95d16b953b1a64d0c6f02" => :mavericks
-    sha1 "2a3c681188f7db786f61b053aa0813549838718a" => :mountain_lion
+    cellar :any
+    sha256 "ff1cf09030cbe325abba92ef816680085fd52e0e0dd231b6285def296c5a3a2b" => :yosemite
+    sha256 "2cd9d5bc2962855fc9efae15ba64592b0241b90a38593a8453bf3bb8c1570d8b" => :mavericks
+    sha256 "b5ad2a8cb702115811dc58edf4e69cd528c50606a24f893cae86d6daefb37669" => :mountain_lion
   end
 
   head do
@@ -58,6 +58,7 @@ class Mpd < Formula
   depends_on "yajl" => :optional        # JSON library for SoundCloud
   depends_on "opus" => :optional        # Opus support
   depends_on "libvorbis" => :optional
+  depends_on "libnfs" => :optional
 
   def install
     # mpd specifies -std=gnu++0x, but clang appears to try to build
@@ -71,6 +72,7 @@ class Mpd < Formula
       --disable-debug
       --disable-dependency-tracking
       --prefix=#{prefix}
+      --sysconfdir=#{etc}
       --enable-bzip2
       --enable-ffmpeg
       --enable-fluidsynth
@@ -86,11 +88,14 @@ class Mpd < Formula
     args << "--disable-lame-encoder" if build.without? "lame"
     args << "--disable-soundcloud" if build.without? "yajl"
     args << "--enable-vorbis-encoder" if build.with? "libvorbis"
+    args << "--enable-nfs" if build.with? "libnfs"
 
     system "./configure", *args
     system "make"
     ENV.j1 # Directories are created in parallel, so let's not do that
-    system "make install"
+    system "make", "install"
+
+    (etc+"mpd").install "doc/mpdconf.example" => "mpd.conf"
   end
 
   plist_options :manual => "mpd"
@@ -116,5 +121,19 @@ class Mpd < Formula
     </dict>
     </plist>
     EOS
+  end
+
+  test do
+    pid = fork do
+      exec "#{bin}/mpd --stdout --no-daemon --no-config"
+    end
+    sleep 2
+
+    begin
+      assert_match /OK MPD/, shell_output("curl localhost:6600")
+    ensure
+      Process.kill("SIGINT", pid)
+      Process.wait(pid)
+    end
   end
 end

@@ -1,13 +1,14 @@
 class Pyenv < Formula
+  desc "Python version management"
   homepage "https://github.com/yyuu/pyenv"
   head "https://github.com/yyuu/pyenv.git"
-  url "https://github.com/yyuu/pyenv/archive/v20150326.tar.gz"
-  sha256 "faee42d2a409ca8af2d65987eca88584bfef0dfc686150377af5850358db6b37"
+  url "https://github.com/yyuu/pyenv/archive/v20150601.tar.gz"
+  sha256 "42c23185a35eb7ac91eb69e06b2f5b04e9429b02b8648eb1237dfa626e32e49b"
 
   bottle do
-    sha256 "1fe982632bcdd6fd439f0bd5f3db37579e08a5236820173ca030414e11039293" => :yosemite
-    sha256 "a3a60f07b23c672b06dab378ff214d5d9191c15de52e9fa18172dc7fb0462e04" => :mavericks
-    sha256 "ab214ebad6b614b5394818d4d913bc68df17d073cb1317f6da06ff1aee5606a1" => :mountain_lion
+    sha256 "bc5efdd3f1a459491c853ffb1d1e522760c33f7301f6f9dfbb90eb44302a8e6e" => :yosemite
+    sha256 "d66e87298a2f121f3388053517df17219b94bf0cbc0e8e8d21f7fad05593776a" => :mavericks
+    sha256 "5bb9436f455a76ad5a78cca2f3d5859ed7f6196fc2c676d6886414e4de2d2ca6" => :mountain_lion
   end
 
   depends_on "autoconf" => [:recommended, :run]
@@ -37,7 +38,7 @@ class Pyenv < Formula
       if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi
 
     To use Homebrew's directories rather than ~/.pyenv add to your profile:
-      export PYENV_ROOT=#{opt_prefix}
+      export PYENV_ROOT=#{var}/pyenv
     EOS
   end
 

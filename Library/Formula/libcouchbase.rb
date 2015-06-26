@@ -1,13 +1,14 @@
 class Libcouchbase < Formula
-  homepage 'http://docs.couchbase.com/developer/c-2.4/c-intro.html'
-  url 'http://packages.couchbase.com/clients/c/libcouchbase-2.4.8.tar.gz'
-  sha1 '0c091a7aaf4bc0afa6c680361be3dcdd6a6f7896'
-  head "https://github.com/couchbase/libcouchbase", :using => :git
+  desc "C library for Couchbase"
+  homepage "http://docs.couchbase.com/developer/c-2.4/c-intro.html"
+  url "http://packages.couchbase.com/clients/c/libcouchbase-2.5.1.tar.gz"
+  sha1 "11a19b7dc7b8cad5ef6ad8a089d7a177c96451af"
+  head "https://github.com/couchbase/libcouchbase.git"
 
   bottle do
-    sha256 "4c9cdc97d7590cfec68ac18b1742fe1ea0905009403daceff4a060fa04b536d6" => :yosemite
-    sha256 "3df1f27b09d59364b1861750dee4dedd02da184ccc70a545b0d3f2d5a480b4d9" => :mavericks
-    sha256 "9229a54b04fe3f08679446b38b49b84c48d80acb12703bc2e7c2da823905710d" => :mountain_lion
+    sha256 "08be2172b00dbd629e81ea977d3098b487b1aa4cbccb205d75edbed558ba5761" => :yosemite
+    sha256 "5c033ba007ee577f974291365fc14345cf74894a55d986e4af3a955475bfc335" => :mavericks
+    sha256 "721410439581b0ed55beecf64c716581408cea1133601ee4d6842f37f6c2fc45" => :mountain_lion
   end
 
   option :universal
@@ -21,26 +22,26 @@ class Libcouchbase < Formula
   depends_on "libuv" => :optional
   depends_on "libevent" => :recommended
   depends_on "openssl"
-  depends_on 'cmake' => :build
+  depends_on "cmake" => :build
 
   def install
     args = std_cmake_args
-    args << '-DLCB_NO_TESTS=1'
+    args << "-DLCB_NO_TESTS=1"
 
-    ['libev', 'libevent', 'libuv'].each do |pname|
-        args << "-DLCB_BUILD_#{pname.upcase}=" + (build.with?("#{pname}") ? 'ON' : 'OFF')
+    ["libev", "libevent", "libuv"].each do |pname|
+      args << "-DLCB_BUILD_#{pname.upcase}=" + (build.with?("#{pname}") ? "ON" : "OFF")
     end
     if build.universal?
-      args << '-DLCB_UNIVERSAL_BINARY=1'
+      args << "-DLCB_UNIVERSAL_BINARY=1"
       ENV.universal_binary
     end
-    if build.without?('libev') && build.without?('libuv') && build.without?('libevent')
-      args << '-DLCB_NO_PLUGINS=1'
+    if build.without?("libev") && build.without?("libuv") && build.without?("libevent")
+      args << "-DLCB_NO_PLUGINS=1"
     end
 
-    mkdir 'LCB-BUILD' do
+    mkdir "LCB-BUILD" do
       system "cmake", "..", *args
-      system 'make install'
+      system "make", "install"
     end
   end
 

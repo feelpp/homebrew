@@ -1,13 +1,16 @@
 require "formula"
 
 class Fsharp < Formula
+  desc "F#, a functional-first programming language"
   homepage "http://fsharp.org/"
-  url "https://github.com/fsharp/fsharp.git", :tag => "3.1.1.25"
+  url "https://github.com/fsharp/fsharp.git", :tag => "3.1.1.32",
+    :revision => "a4e1f7111a6d1410df3f33e7205ee34617006b94"
 
   bottle do
-    sha1 "099b7e8179570aca78ab427a8d8ce25e0b3f0cd6" => :mavericks
-    sha1 "604de51dfc12d77aa958f6de6a755956393a435b" => :mountain_lion
-    sha1 "d6e907d4d37e85bdcad3fa50e53dde07839f0e6e" => :lion
+    revision 1
+    sha256 "169f82ce3b728aab7b892e5741c113e9edd1b8428a79c2b933fd67c6c8cd80cb" => :yosemite
+    sha256 "b7456c760c29aaf9d08a0879e1d988ee557ed487cb23ccfd293fcf0895472403" => :mavericks
+    sha256 "069a556dae1420b045acacbe55ecfdfccb0f6179db57be4fd3b29baec9aa9b2d" => :mountain_lion
   end
 
   depends_on "automake" => :build
@@ -27,7 +30,7 @@ class Fsharp < Formula
       %w|Microsoft.Portable.FSharp.Targets
          Microsoft.FSharp.Targets|.each do |fsharp_targ|
 
-        tree_dir   = "lib/mono/Microsoft\ SDKs/F\#/#{fsharp_ver}/Framework/v4.0"
+        tree_dir   = "lib/mono/Microsoft\ SDKs/F\#/#{fsharp_ver}/Framework/v4.5"
         source_dir = File.expand_path "#{prefix}/../../mono/#{mono_ver}/#{tree_dir}"
 
         # variables:

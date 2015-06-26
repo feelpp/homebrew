@@ -1,33 +1,13 @@
-class Ruby19 < Requirement
-  fatal true
-  default_formula "ruby"
-
-  satisfy :build_env => false do
-    next unless which "ruby"
-    version = /\d\.\d/.match `ruby --version 2>&1`
-    next unless version
-    Version.new(version.to_s) >= Version.new("1.9")
-  end
-
-  env do
-    ENV.prepend_path "PATH", which("ruby").dirname
-  end
-
-  def message; <<-EOS.undent
-    The mkvtoolnix buildsystem needs Ruby >=1.9
-    EOS
-  end
-end
-
 class Mkvtoolnix < Formula
+  desc "Matroska media files manipulation tools"
   homepage "https://www.bunkus.org/videotools/mkvtoolnix/"
-  url "https://www.bunkus.org/videotools/mkvtoolnix/sources/mkvtoolnix-7.7.0.tar.xz"
-  sha1 "9f24c02f8f0e4e40162dd5e5a305f2226186a046"
+  url "https://www.bunkus.org/videotools/mkvtoolnix/sources/mkvtoolnix-8.0.0.tar.xz"
+  sha256 "2eb8984b316463995bbe83f7df80e26d594da7eb35a2c28d83559bf1942535aa"
 
   bottle do
-    sha1 "c0aa6d1f587159dfcf89f0f193c1fc97ae8554da" => :yosemite
-    sha1 "022ff93c8ee34b6958ccbcba2aa96e82e8b5410e" => :mavericks
-    sha1 "1ded8d87b52b495e9a94e0cfab5e4623532ff98a" => :mountain_lion
+    sha256 "e53da9dfaafc0ae9d42b2a60a72ef015aa5d0f3d9f2c29ff7a3fb64b3ea4c0e4" => :yosemite
+    sha256 "53085a65a6e26e3376a744c46ac02dcd2fd0f8479f4be332e323560a778542b0" => :mavericks
+    sha256 "fc9ea04dc9a55d1941a70a508710e5f5787814bd37efb5462fad170e2d94e044" => :mountain_lion
   end
 
   head do
@@ -38,10 +18,10 @@ class Mkvtoolnix < Formula
   end
 
   option "with-wxmac", "Build with wxWidgets GUI"
-  option "with-qt5", "Build with experimental QT GUI"
+  option "with-qt5", "Build with QT GUI"
 
   depends_on "pkg-config" => :build
-  depends_on Ruby19
+  depends_on :ruby => "1.9"
   depends_on "libogg"
   depends_on "libvorbis"
   depends_on "flac" => :recommended
@@ -82,7 +62,7 @@ class Mkvtoolnix < Formula
       wxmac = Formula["wxmac"]
       args << "--with-extra-includes=#{ogg.opt_include};#{vorbis.opt_include};#{wxmac.opt_include}"
       args << "--with-extra-libs=#{ogg.opt_lib};#{vorbis.opt_lib};#{wxmac.opt_lib}"
-      args << "--enable-gui" << "--enable-wxwidgets"
+      args << "--enable-wxwidgets"
     else
       args << "--with-extra-includes=#{ogg.opt_include};#{vorbis.opt_include}"
       args << "--with-extra-libs=#{ogg.opt_lib};#{vorbis.opt_lib}"
@@ -97,6 +77,8 @@ class Mkvtoolnix < Formula
       args << "--with-rcc=#{qt5.opt_bin}/rcc"
       args << "--with-mkvtoolnix-gui"
       args << "--enable-qt"
+    else
+      args << "--disable-qt"
     end
 
     system "./autogen.sh" if build.head?

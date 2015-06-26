@@ -1,6 +1,7 @@
 require "formula"
 
 class Uwsgi < Formula
+  desc "Full stack for building hosting services"
   homepage "https://uwsgi-docs.readthedocs.org/en/latest/"
   head "https://github.com/unbit/uwsgi.git"
 
@@ -32,6 +33,7 @@ class Uwsgi < Formula
   depends_on "lua51" => :optional
   depends_on "mongodb" => :optional
   depends_on "mongrel2" => :optional
+  depends_on "mono" => :optional
   depends_on "nagios" => :optional
   depends_on "postgresql" => :optional
   depends_on "pypy" => :optional
@@ -95,6 +97,7 @@ class Uwsgi < Formula
     plugins << "mongodb" if build.with? "mongodb"
     plugins << "mongodblog" if build.with? "mongodb"
     plugins << "mongrel2" if build.with? "mongrel2"
+    plugins << "mono" if build.with? "mono"
     plugins << "nagios" if build.with? "nagios"
     plugins << "pypy" if build.with? "pypy"
     plugins << "php" if build.with? "php"

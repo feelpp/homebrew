@@ -1,15 +1,16 @@
 class Docker < Formula
+  desc "Pack, ship and run any application as a lightweight container"
   homepage "https://www.docker.com/"
   # Boot2docker and docker are generally updated at the same time.
   # Please update the version of boot2docker too
-  url "https://github.com/docker/docker.git", :tag => "v1.5.0",
-    :revision => "a8a31eff10544860d2188dddabdee4d727545796"
+  url "https://github.com/docker/docker.git", :tag => "v1.7.0",
+    :revision => "0baf60984522744eed290348f33f396c046b2f3a"
 
   bottle do
     cellar :any
-    sha1 "3eccd8879767b3fc95048f7d40a60edb69741892" => :yosemite
-    sha1 "9e65954b48b3feb53ba14aafcd5081a5ede54809" => :mavericks
-    sha1 "5f22268864f33697d6988a49c4c73ddc7368cfa2" => :mountain_lion
+    sha256 "8c19fe17fc2fc8a9759b80aa1dd85e300336c123842fffedf768b22215c2b2bb" => :yosemite
+    sha256 "ee5333ba2e6d67438d76c954503bb957790bff3dd0ba51e7645c5b8363de6313" => :mavericks
+    sha256 "ca4e419285a250598f05d658fda3dac97c9b0bae4c3361086a9f13a41b40bfc7" => :mountain_lion
   end
 
   option "without-completions", "Disable bash/zsh completions"

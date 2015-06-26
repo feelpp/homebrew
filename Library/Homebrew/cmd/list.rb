@@ -1,4 +1,5 @@
 require "metafiles"
+require "formula"
 
 module Homebrew
   def list
@@ -16,8 +17,21 @@ module Homebrew
     if ARGV.include? '--pinned' or ARGV.include? '--versions'
       filtered_list
     elsif ARGV.named.empty?
-      ENV['CLICOLOR'] = nil
-      exec 'ls', *ARGV.options_only << HOMEBREW_CELLAR
+      if ARGV.include? "--full-name"
+        full_names = Formula.installed.map(&:full_name).sort do |a, b|
+          if a.include?("/") && !b.include?("/")
+            1
+          elsif !a.include?("/") && b.include?("/")
+            -1
+          else
+            a <=> b
+          end
+        end
+        puts_columns full_names
+      else
+        ENV['CLICOLOR'] = nil
+        exec 'ls', *ARGV.options_only << HOMEBREW_CELLAR
+      end
     elsif ARGV.verbose? or not $stdout.tty?
       exec "find", *ARGV.kegs.map(&:to_s) + %w[-not -type d -print]
     else
@@ -34,6 +48,10 @@ module Homebrew
     lib/gio/*
     lib/node_modules/*
     lib/python[23].[0-9]/*
+    lib/pypy/*
+    lib/pypy3/*
+    share/pypy/*
+    share/pypy3/*
     share/doc/homebrew/*
     share/info/dir
     share/man/man1/brew.1

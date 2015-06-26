@@ -1,7 +1,8 @@
 class Elasticsearch < Formula
+  desc "Distributed real-time search & analytics engine for the cloud"
   homepage "https://www.elastic.co/products/elasticsearch"
-  url "https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.5.0.tar.gz"
-  sha1 "07987acd48c754b8e7db6829314b56e1928b5e1b"
+  url "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.6.0.tar.gz"
+  sha256 "dc336c83394b2f2f72f362e0f959a4cfdec2109aa3de15668401afeab0b02d2e"
 
   depends_on :java => "1.7+"
 
@@ -104,7 +105,7 @@ class Elasticsearch < Formula
           <key>ProgramArguments</key>
           <array>
             <string>#{HOMEBREW_PREFIX}/bin/elasticsearch</string>
-            <string>--config=#{prefix}/config/elasticsearch.yml</string>
+            <string>--config=#{etc}/elasticsearch/elasticsearch.yml</string>
           </array>
           <key>EnvironmentVariables</key>
           <dict>

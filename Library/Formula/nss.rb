@@ -1,15 +1,16 @@
 require "formula"
 
 class Nss < Formula
+  desc "Libraries for security-enabled client and server applications"
   homepage "https://developer.mozilla.org/docs/NSS"
-  url "https://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_18_RTM/src/nss-3.18.tar.gz"
-  sha256 "618db0fb2af9f6fc165934d509036b65efc78ab0ae118c06c9488bb667f21d40"
+  url "https://ftp.mozilla.org/pub/mozilla.org/security/nss/releases/NSS_3_19_2_RTM/src/nss-3.19.2.tar.gz"
+  sha256 "1306663e8f61d8449ad8cbcffab743a604dcd9f6f34232c210847c51dce2c9ae"
 
   bottle do
     cellar :any
-    sha256 "8a8a16cc041f0ac6ca32694e87a4b6afdb438fa5d2582a742113206afbc715a5" => :yosemite
-    sha256 "7995fd4c349960e6a79a5ffb5753a8fe8a3b67376ad28c912939ca11217e7f33" => :mavericks
-    sha256 "a98cf147b9f0ed5af35bd28a9995bc0138b54a6f8d027b6d682319a73b7e2d85" => :mountain_lion
+    sha256 "970190740d93ad9e30370f3324255b333050b86e733accf64fb44f93a59ffa28" => :yosemite
+    sha256 "45da5e876dc1ed676f17b39202ae5405685d54f0b5e69b2f83ed250c56c029f6" => :mavericks
+    sha256 "4e524b54cad3ab205e3f40cc382badc169fbd42944867a40e723e94dbfbd4828" => :mountain_lion
   end
 
   keg_only <<-EOS.undent
@@ -68,7 +69,7 @@ class Nss < Formula
   end
 
   test do
-    # See: http://www.mozilla.org/projects/security/pki/nss/tools/certutil.html
+    # See: https://developer.mozilla.org/docs/Mozilla/Projects/NSS/tools/NSS_Tools_certutil
     (testpath/"passwd").write("It's a secret to everyone.")
     system "#{bin}/certutil", "-N", "-d", pwd, "-f", "passwd"
     system "#{bin}/certutil", "-L", "-d", pwd

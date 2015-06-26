@@ -7,7 +7,7 @@ require 'metafiles'
 class Pathname
   include MachO
 
-  BOTTLE_EXTNAME_RX = /(\.[a-z_]+(32)?\.bottle\.(\d+\.)?tar\.gz)$/
+  BOTTLE_EXTNAME_RX = /(\.[a-z0-9_]+\.bottle\.(\d+\.)?tar\.gz)$/
 
   def install *sources
     sources.each do |src|
@@ -211,6 +211,8 @@ class Pathname
       return :gzip_only
     when ".bz2"
       return :bzip2_only
+    when ".lha", ".lzh"
+      return :lha
     end
 
     # Get enough of the file to detect common file types
@@ -325,17 +327,6 @@ class Pathname
     quiet_system "/usr/bin/install-info", "--delete", "--quiet", to_s, "#{dirname}/dir"
   end
 
-  def find_formula
-    [join("Formula"), join("HomebrewFormula"), self].each do |d|
-      if d.exist?
-        d.children.each do |pn|
-          yield pn if pn.extname == ".rb"
-        end
-        break
-      end
-    end
-  end
-
   # Writes an exec script in this folder for each target pathname
   def write_exec_script *targets
     targets.flatten!
@@ -402,7 +393,7 @@ class Pathname
     out = ""
     n = Utils.popen_read("find", expand_path.to_s, "-type", "f", "!", "-name", ".DS_Store").split("\n").size
     out << "#{n} files, " if n > 1
-    out << Utils.popen_read("/usr/bin/du", "-hs", expand_path.to_s).split("\t")[0]
+    out << Utils.popen_read("/usr/bin/du", "-hs", expand_path.to_s).split("\t")[0].strip
     out
   end
 

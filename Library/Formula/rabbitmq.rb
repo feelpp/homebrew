@@ -1,15 +1,10 @@
 require 'formula'
 
 class Rabbitmq < Formula
+  desc "Messaging broker"
   homepage 'https://www.rabbitmq.com'
-  url 'https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.0/rabbitmq-server-mac-standalone-3.5.0.tar.gz'
-  sha256 '4bf0e23d3e000b80b5ce9b3b06fdae4889d2d91bac4f3e4ec1dc6cd0b5802fe9'
-
-  bottle do
-    sha256 "aa0e8a7a110ff810676e82b8f777c60c030d3553742d47239509d16925ba771d" => :yosemite
-    sha256 "ed5cdf4138b51a6431c92f1405002b7bd27d3719592b7c4927da5d611bcaf017" => :mavericks
-    sha256 "5a0bd98e3bd3799b61de7a58317716fb793510b5c77203e635f7c7492ba86ad4" => :mountain_lion
-  end
+  url 'https://www.rabbitmq.com/releases/rabbitmq-server/v3.5.3/rabbitmq-server-mac-standalone-3.5.3.tar.gz'
+  sha256 'b6c25f20decfcdfee90bd9023e54ab9936d19039d4f01315458b2c83766318f2'
 
   depends_on 'simplejson' => :python if MacOS.version <= :leopard
 
