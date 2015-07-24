@@ -329,7 +329,7 @@ module GitHub extend self
         GitHub #{error}
         Try again in #{pretty_ratelimit_reset(reset)}, or create an personal access token:
           https://github.com/settings/tokens
-        and then set it as HOMEBREW_GITHUB_API_TOKEN.
+        and then set the token as: HOMEBREW_GITHUB_API_TOKEN
         EOS
     end
 
@@ -399,6 +399,10 @@ module GitHub extend self
     open(uri) { |json| json["items"] }
   end
 
+  def repository(user, repo)
+    open(URI.parse("https://api.github.com/repos/#{user}/#{repo}")) { |j| j }
+  end
+
   def build_query_string(query, qualifiers)
     s = "q=#{uri_escape(query)}+"
     s << build_search_qualifier_string(qualifiers)
@@ -429,7 +433,7 @@ module GitHub extend self
 
   def print_pull_requests_matching(query)
     return [] if ENV['HOMEBREW_NO_GITHUB_API']
-    puts "Searching pull requests..."
+    ohai "Searching pull requests..."
 
     open_or_closed_prs = issues_matching(query, :type => "pr")
 

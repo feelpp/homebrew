@@ -3,7 +3,9 @@ require "utils"
 require "extend/ENV"
 require "formula_cellar_checks"
 require "official_taps"
+require "tap_migrations"
 require "cmd/search"
+require "date"
 
 module Homebrew
   def audit
@@ -16,6 +18,8 @@ module Homebrew
       ohai "brew style #{ARGV.formulae.join " "}"
       style
     end
+
+    online = ARGV.include? "--online"
 
     ENV.activate_extensions!
     ENV.setup_build_environment
@@ -49,7 +53,7 @@ module Homebrew
     output_header = !strict
 
     ff.each do |f|
-      fa = FormulaAuditor.new(f, :strict => strict)
+      fa = FormulaAuditor.new(f, :strict => strict, :online => online)
       fa.audit
 
       unless fa.problems.empty?
@@ -130,6 +134,7 @@ class FormulaAuditor
   def initialize(formula, options={})
     @formula = formula
     @strict = !!options[:strict]
+    @online = !!options[:online]
     @problems = []
     @text = FormulaText.new(formula.path)
     @specs = %w{stable devel head}.map { |s| formula.send(s) }.compact
@@ -179,7 +184,7 @@ class FormulaAuditor
       [lineno, name]
     end.compact.each_cons(2) do |c1, c2|
       unless c1[0] < c2[0]
-        problem "`#{c1[1]}`(line #{c1[0]}) should be put before `#{c2[1]}`(line #{c2[0]})"
+        problem "`#{c1[1]}` (line #{c1[0]}) should be put before `#{c2[1]}` (line #{c2[0]})"
       end
     end
   end
@@ -233,9 +238,13 @@ class FormulaAuditor
       user_name, _, formula_name = tap_formula_name.split("/", 3)
       user_name == "homebrew" && formula_name == name
     end
-    same_name_tap_formulae += @@remote_official_taps.map do |tap|
-      Thread.new { Homebrew.search_tap "homebrew", tap, name }
-    end.map(&:value).flatten
+
+    if @online
+      same_name_tap_formulae += @@remote_official_taps.map do |tap|
+        Thread.new { Homebrew.search_tap "homebrew", tap, name }
+      end.map(&:value).flatten
+    end
+
     same_name_tap_formulae.delete(full_name)
 
     if same_name_tap_formulae.size > 0
@@ -345,7 +354,10 @@ class FormulaAuditor
     # Make sure the formula name plus description is no longer than 80 characters
     linelength = formula.full_name.length + ": ".length + desc.length
     if linelength > 80
-      problem "Description is too long. \"name: desc\" should be less than 80 characters (currently #{linelength})."
+      problem <<-EOS.undent
+        Description is too long. \"name: desc\" should be less than 80 characters.
+        Length is calculated as #{formula.full_name} + desc. (currently #{linelength})
+      EOS
     end
 
     if desc =~ %r[[Cc]ommandline]
@@ -412,19 +424,55 @@ class FormulaAuditor
          %r[^http://packages\.debian\.org],
          %r[^http://wiki\.freedesktop\.org/],
          %r[^http://((?:www)\.)?gnupg.org/],
-         %r[^http://((?:trac|tools|www)\.)?ietf\.org],
+         %r[^http://ietf\.org],
+         %r[^http://[^/.]+\.ietf\.org],
+         %r[^http://[^/.]+\.tools\.ietf\.org],
          %r[^http://www\.gnu\.org/],
          %r[^http://code\.google\.com/]
       problem "Please use https:// for #{homepage}"
     end
+
+    return unless @online
+    begin
+      nostdout { curl "--connect-timeout", "15", "-IL", "-o", "/dev/null", homepage }
+    rescue ErrorDuringExecution
+      problem "The homepage is not reachable (curl exit code #{$?.exitstatus})"
+    end
+  end
+
+  def audit_github_repository
+    return unless @online
+
+    regex = %r{https?://github.com/([^/]+)/([^/]+)/?.*}
+    _, user, repo = *regex.match(formula.stable.url) if formula.stable
+    _, user, repo = *regex.match(formula.homepage) unless user
+    return if !user || !repo
+
+    repo.gsub!(/.git$/, "")
+
+    begin
+      metadata = GitHub.repository(user, repo)
+    rescue GitHub::HTTPNotFoundError
+      return
+    end
+
+    problem "GitHub fork (not canonical repository)" if metadata["fork"]
+    if (metadata["forks_count"] < 10) && (metadata["watchers_count"] < 10) &&
+       (metadata["stargazers_count"] < 20)
+      problem "GitHub repository not notable enough (<10 forks, <10 watchers and <20 stars)"
+    end
+
+    if (Date.parse(metadata["created_at"]) > (Date.today - 30))
+      problem "GitHub repository too new (<30 days old)"
+    end
   end
 
   def audit_specs
-    if head_only?(formula) && formula.tap.to_s.downcase != "homebrew/homebrew-head-only"
+    if head_only?(formula) && formula.tap.to_s.downcase !~ /-head-only$/
       problem "Head-only (no stable download)"
     end
 
-    if devel_only?(formula) && formula.tap.to_s.downcase != "homebrew/homebrew-devel-only"
+    if devel_only?(formula) && formula.tap.to_s.downcase !~ /-devel-only$/
       problem "Devel-only (no stable download)"
     end
 
@@ -471,7 +519,8 @@ class FormulaAuditor
     end
   end
 
-  def audit_patches
+  def audit_legacy_patches
+    return unless formula.respond_to?(:patches)
     legacy_patches = Patch.normalize_legacy_patches(formula.patches).grep(LegacyPatch)
     if legacy_patches.any?
       problem "Use the patch DSL instead of defining a 'patches' method"
@@ -746,6 +795,10 @@ class FormulaAuditor
       problem "Use the `#{method}` Ruby method instead of `system #{system}`"
     end
 
+    if line =~ /assert .*\.include?/
+      problem "Use `assert_match` instead of `assert ...include?`"
+    end
+
     if @strict
       if line =~ /system (["'][^"' ]*(?:\s[^"' ]*)+["'])/
         bad_system = $1
@@ -766,6 +819,20 @@ class FormulaAuditor
 
     if caveats =~ /setuid/
       problem "Don't recommend setuid in the caveats, suggest sudo instead."
+    end
+  end
+
+  def audit_reverse_migration
+    # Only enforce for new formula being re-added to core
+    return unless @strict
+    return unless formula.core_formula?
+
+    if TAP_MIGRATIONS.has_key?(formula.name)
+      problem <<-EOS.undent
+       #{formula.name} seems to be listed in tap_migrations.rb!
+       Please remove #{formula.name} from present tap & tap_migrations.rb
+       before submitting it to Homebrew/homebrew.
+      EOS
     end
   end
 
@@ -814,15 +881,17 @@ class FormulaAuditor
     audit_specs
     audit_desc
     audit_homepage
+    audit_github_repository
     audit_deps
     audit_conflicts
     audit_options
-    audit_patches
+    audit_legacy_patches
     audit_text
     audit_caveats
     text.without_patch.split("\n").each_with_index { |line, lineno| audit_line(line, lineno+1) }
     audit_installed
     audit_prefix_has_contents
+    audit_reverse_migration
   end
 
   private
@@ -893,12 +962,8 @@ class ResourceAuditor
       problem "MD5 checksums are deprecated, please use SHA256"
       return
     when :sha1
-      if ARGV.include? "--strict"
-        problem "SHA1 checksums are deprecated, please use SHA256"
-        return
-      else
-        len = 40
-      end
+      problem "SHA1 checksums are deprecated, please use SHA256"
+      return
     when :sha256 then len = 64
     end
 
@@ -926,9 +991,11 @@ class ResourceAuditor
 
     return unless using
 
-    if using == :ssl3 || using == CurlSSL3DownloadStrategy
+    if using == :ssl3 || \
+      (Object.const_defined?("CurlSSL3DownloadStrategy") && using == CurlSSL3DownloadStrategy)
       problem "The SSL3 download strategy is deprecated, please choose a different URL"
-    elsif using == CurlUnsafeDownloadStrategy || using == UnsafeSubversionDownloadStrategy
+    elsif (Object.const_defined?("CurlUnsafeDownloadStrategy") && using == CurlUnsafeDownloadStrategy) || \
+      (Object.const_defined?("UnsafeSubversionDownloadStrategy") && using == UnsafeSubversionDownloadStrategy)
       problem "#{using.name} is deprecated, please choose a different URL"
     end
 

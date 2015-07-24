@@ -16,13 +16,13 @@ class Mongodb < Formula
   end
 
   devel do
-    url "https://fastdl.mongodb.org/src/mongodb-src-r3.1.4.tar.gz"
-    sha256 "76af6357fdffa007931c6c4f0929244da5e987c33dd2d670454830cefa2388a0"
+    url "https://fastdl.mongodb.org/src/mongodb-src-r3.1.6.tar.gz"
+    sha256 "de8591025f38bfdf5c8540e70a09a426d7e0b45a41b625d959598efd57dc20fb"
 
     go_resource "github.com/mongodb/mongo-tools" do
       url "https://github.com/mongodb/mongo-tools.git",
-        :tag => "r3.1.4",
-        :revision => "102574bcf8fe267f2104ac24be68ec1c50fe63d6"
+        :tag => "r3.1.6",
+        :revision => "ec79a8183b012d3c55fc22fde298dd3032444b0b"
     end
   end
 
@@ -83,6 +83,7 @@ class Mongodb < Formula
 
     args << "--use-system-boost" if build.with? "boost"
     args << "--use-new-tools"
+    args << "--disable-warnings-as-errors" if MacOS.version >= :yosemite
 
     if build.with? "openssl"
       args << "--ssl" << "--extrapath=#{Formula["openssl"].opt_prefix}"

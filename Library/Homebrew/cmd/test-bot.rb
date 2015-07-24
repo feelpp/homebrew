@@ -428,9 +428,32 @@ module Homebrew
         return
       end
 
+      conflicts = formula.conflicts
+      formula.recursive_dependencies.each do |dependency|
+        conflicts += dependency.to_formula.conflicts
+      end
+
+      conflicts.each do |conflict|
+        confict_formula = Formulary.factory(conflict.name)
+
+        if confict_formula.installed? && confict_formula.linked_keg.exist?
+          test "brew", "unlink", "--force", conflict.name
+        end
+      end
+
       installed = Utils.popen_read("brew", "list").split("\n")
       dependencies = Utils.popen_read("brew", "deps", "--skip-optional",
                                       canonical_formula_name).split("\n")
+
+      (installed & dependencies).each do |installed_dependency|
+        installed_dependency_formula = Formulary.factory(installed_dependency)
+        if installed_dependency_formula.installed? &&
+            !installed_dependency_formula.keg_only? &&
+            !installed_dependency_formula.linked_keg.exist?
+          test "brew", "link", installed_dependency
+        end
+      end
+
       dependencies -= installed
       unchanged_dependencies = dependencies - @formulae
       changed_dependences = dependencies - unchanged_dependencies
@@ -477,18 +500,15 @@ module Homebrew
       # Don't care about e.g. bottle failures for dependencies.
       run_as_not_developer do
         test "brew", "install", "--only-dependencies", *install_args unless dependencies.empty?
-        test "brew", "install", *install_args
+        test "brew", "install", "--build-from-source", *install_args
       end
       install_passed = steps.last.passed?
       audit_args = [canonical_formula_name]
-      audit_args << "--strict" if @added_formulae.include? formula_name
+      audit_args << "--strict" << "--online" if @added_formulae.include? formula_name
       test "brew", "audit", *audit_args
       if install_passed
         if formula.stable? && !ARGV.include?('--no-bottle')
-          bottle_args = ["--rb", canonical_formula_name]
-          if @tap
-            bottle_args << "--root-url=#{BottleSpecification::DEFAULT_DOMAIN}/#{Bintray.repository(@tap)}"
-          end
+          bottle_args = ["--verbose", "--rb", canonical_formula_name]
           bottle_args << { :puts_output_on_success => true }
           test "brew", "bottle", *bottle_args
           bottle_step = steps.last
@@ -540,6 +560,7 @@ module Homebrew
       @category = __method__
       return if ARGV.include? "--skip-homebrew"
       test "brew", "tests"
+      test "brew", "tests", "--no-compat"
       readall_args = []
       readall_args << "--syntax" if MacOS.version >= :mavericks
       test "brew", "readall", *readall_args

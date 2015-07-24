@@ -38,7 +38,7 @@ class Keg
       end
     end
 
-    files = pkgconfig_files | libtool_files | script_files | plist_files
+    files = text_files | libtool_files
 
     files.group_by { |f| f.stat.ino }.each_value do |first, *rest|
       s = first.open("rb", &:read)
@@ -68,8 +68,7 @@ class Keg
   end
 
   # Detects the C++ dynamic libraries in place, scanning the dynamic links
-  # of the files within the keg. This searches only libs contained within
-  # lib/, and ignores binaries and other mach-o objects
+  # of the files within the keg.
   # Note that this doesn't attempt to distinguish between libstdc++ versions,
   # for instance between Apple libstdc++ and GNU libstdc++
   def detect_cxx_stdlibs(options={})
@@ -161,31 +160,18 @@ class Keg
     mach_o_files
   end
 
-  def script_files
-    script_files = []
-
-    # find all files with shebangs
-    find do |pn|
+  def text_files
+    text_files = []
+    path.find do |pn|
       next if pn.symlink? or pn.directory?
-      script_files << pn if pn.text_executable?
+      next if Metafiles::EXTENSIONS.include? pn.extname
+      if Utils.popen_read("/usr/bin/file", "--brief", pn).include?("text") ||
+            pn.text_executable?
+        text_files << pn
+      end
     end
 
-    script_files
-  end
-
-  def pkgconfig_files
-    pkgconfig_files = []
-
-    %w[lib share].each do |dir|
-      pcdir = path.join(dir, "pkgconfig")
-
-      pcdir.find do |pn|
-        next if pn.symlink? or pn.directory? or pn.extname != '.pc'
-        pkgconfig_files << pn
-      end if pcdir.directory?
-    end
-
-    pkgconfig_files
+    text_files
   end
 
   def libtool_files
@@ -197,15 +183,5 @@ class Keg
       libtool_files << pn
     end if lib.directory?
     libtool_files
-  end
-
-  def plist_files
-    plist_files = []
-
-    self.find do |pn|
-      next if pn.symlink? or pn.directory? or pn.extname != '.plist'
-      plist_files << pn
-    end
-    plist_files
   end
 end

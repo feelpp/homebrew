@@ -105,7 +105,7 @@ module FormulaCellarChecks
 
   def check_shadowed_headers
     ["libtool", "subversion", "berkeley-db"].each do |formula_name|
-      return if formula.name == formula_name
+      return if formula.name.start_with?(formula_name)
     end
 
     return if MacOS.version < :mavericks && formula.name.start_with?("postgresql")

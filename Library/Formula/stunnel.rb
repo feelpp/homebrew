@@ -1,14 +1,15 @@
 class Stunnel < Formula
   desc "SSL tunneling program"
   homepage "https://www.stunnel.org/"
-  url "https://www.stunnel.org/downloads/stunnel-5.19.tar.gz"
-  mirror "https://www.usenix.org.uk/mirrors/stunnel/stunnel-5.19.tar.gz"
-  sha256 "0b543242cf26649acfdd9f00de564c3e8de7ac2237d53935ffdc7eb24f4d556d"
+  url "https://www.stunnel.org/downloads/stunnel-5.20.tar.gz"
+  mirror "https://www.usenix.org.uk/mirrors/stunnel/stunnel-5.20.tar.gz"
+  sha256 "4a36a3729a7287d9d82c4b38bf72c4d3496346cb969b86129c5deac22b20292b"
+  revision 1
 
   bottle do
-    sha256 "8b61746cf29963ee838bb356b25703e23e37167eaad4dfb361d4a03a89c9dd4d" => :yosemite
-    sha256 "757f84ce2b30af81b9f69c294b58593c89c161bfcd9f99c311efae5c0517f0f4" => :mavericks
-    sha256 "cee072e572ac05a5ef891bd8a39fd363b39e0a4293f67da3615e2b97a60918e0" => :mountain_lion
+    sha256 "73301c3a8a91c280d4917527cf590272462804c731d1090305048c9de7f5670b" => :yosemite
+    sha256 "2c3023b7de7cbf31472059ee922bf00eb70a5b0a1727bd13c954ed04b051c708" => :mavericks
+    sha256 "2fedc29356e91b4ec9f1fa05831cecb98925b6e767e63876c392ba05bf16420e" => :mountain_lion
   end
 
   # Please revision me whenever OpenSSL is updated
