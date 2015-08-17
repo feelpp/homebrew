@@ -13,6 +13,7 @@ class Coreutils < Formula
 
   conflicts_with "ganglia", :because => "both install `gstat` binaries"
   conflicts_with "idutils", :because => "both install `gid` and `gid.1`"
+  conflicts_with "aardvark_shell_utils", :because => "both install `realpath` binaries"
 
   head do
     url "git://git.sv.gnu.org/coreutils"
@@ -26,11 +27,16 @@ class Coreutils < Formula
     depends_on "wget" => :build
   end
 
+  depends_on "gmp" => :optional
+
   def install
     system "./bootstrap" if build.head?
-    system "./configure", "--prefix=#{prefix}",
-                          "--program-prefix=g",
-                          "--without-gmp"
+    args = %W[
+      --prefix=#{prefix}
+      --program-prefix=g
+    ]
+    args << "--without-gmp" if build.without? "gmp"
+    system "./configure", *args
     system "make", "install"
 
     # Symlink all commands into libexec/gnubin without the 'g' prefix
