@@ -57,6 +57,10 @@ module Homebrew
   def cleanup_cache
     return unless HOMEBREW_CACHE.directory?
     HOMEBREW_CACHE.children.each do |path|
+      if path.to_s.end_with? ".incomplete"
+        cleanup_path(path) { path.unlink }
+        next
+      end
       if prune?(path)
         if path.file?
           cleanup_path(path) { path.unlink }
@@ -81,7 +85,7 @@ module Homebrew
 
       begin
         f = Formulary.from_rack(HOMEBREW_CELLAR/name)
-      rescue FormulaUnavailableError, TapFormulaAmbiguityError
+      rescue FormulaUnavailableError, TapFormulaAmbiguityError, TapFormulaWithOldnameAmbiguityError
         next
       end
 
@@ -110,7 +114,8 @@ module Homebrew
     return unless HOMEBREW_CACHE_FORMULA.directory?
     candidates = HOMEBREW_CACHE_FORMULA.children
     lockfiles  = candidates.select { |f| f.file? && f.extname == ".brewing" }
-    lockfiles.select(&:readable?).each do |file|
+    lockfiles.each do |file|
+      next unless file.readable?
       file.open.flock(File::LOCK_EX | File::LOCK_NB) && file.unlink
     end
   end
@@ -118,7 +123,7 @@ module Homebrew
   def rm_DS_Store
     paths = Queue.new
     %w[Cellar Frameworks Library bin etc include lib opt sbin share var].
-      map { |p| HOMEBREW_PREFIX/p }.select(&:exist?).each { |p| paths << p }
+      map { |p| HOMEBREW_PREFIX/p }.each { |p| paths << p if p.exist? }
     workers = (0...Hardware::CPU.cores).map do
       Thread.new do
         begin
@@ -132,7 +137,7 @@ module Homebrew
     workers.map(&:join)
   end
 
-  def prune?(path, options={})
+  def prune?(path, options = {})
     @time ||= Time.now
 
     path_modified_time = path.mtime
