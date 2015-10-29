@@ -39,12 +39,18 @@ module Homebrew
     report = Report.new
     master_updater = Updater.new(HOMEBREW_REPOSITORY)
     master_updater.pull!
+    master_updated = master_updater.updated?
+    if master_updated
+      puts "Updated Homebrew from #{master_updater.initial_revision[0, 8]} " \
+           "to #{master_updater.current_revision[0, 8]}."
+    end
     report.update(master_updater.report)
 
     # rename Taps directories
     # this procedure will be removed in the future if it seems unnecessasry
     rename_taps_dir_if_necessary
 
+    updated_taps = []
     Tap.each do |tap|
       next unless tap.git?
 
@@ -56,12 +62,18 @@ module Homebrew
         rescue
           onoe "Failed to update tap: #{tap}"
         else
+          updated_taps << tap.name if updater.updated?
           report.update(updater.report) do |_key, oldval, newval|
             oldval.concat(newval)
           end
         end
       end
     end
+    unless updated_taps.empty?
+      puts "Updated #{updated_taps.size} tap#{plural(updated_taps.size)} " \
+           "(#{updated_taps.join(", ")})."
+    end
+    puts "Already up-to-date." unless master_updated || !updated_taps.empty?
 
     Tap.clear_cache
 
@@ -109,9 +121,8 @@ module Homebrew
     end
 
     if report.empty?
-      puts "Already up-to-date."
+      puts "No changes to formulae." if master_updated || !updated_taps.empty?
     else
-      puts "Updated Homebrew from #{master_updater.initial_revision[0, 8]} to #{master_updater.current_revision[0, 8]}."
       report.dump
     end
     Descriptions.update_cache(report)
@@ -185,18 +196,17 @@ class Updater
   def initialize(repository)
     @repository = repository
     @stashed = false
+    @quiet_args = []
+    @quiet_args << "--quiet" unless ARGV.verbose?
   end
 
   def pull!(options = {})
-    quiet = []
-    quiet << "--quiet" unless ARGV.verbose?
-
     unless system "git", "diff", "--quiet"
-      unless options[:silent]
+      if ARGV.verbose?
         puts "Stashing your changes:"
         system "git", "status", "--short", "--untracked-files"
       end
-      safe_system "git", "stash", "save", "--include-untracked", *quiet
+      safe_system "git", "stash", "save", "--include-untracked", *@quiet_args
       @stashed = true
     end
 
@@ -216,8 +226,22 @@ class Updater
       @initial_branch = ""
     end
 
+    # Used for testing purposes, e.g., for testing formula migration after
+    # renaming it in the currently checked-out branch. To test run
+    # "brew update --simulate-from-current-branch"
+    if ARGV.include?("--simulate-from-current-branch")
+      @initial_revision = `git rev-parse -q --verify #{@upstream_branch}`.chomp
+      @current_revision = read_current_revision
+      begin
+        safe_system "git", "merge-base", "--is-ancestor", @initial_revision, @current_revision
+      rescue ErrorDuringExecution
+        odie "Your HEAD is not a descendant of '#{@upstream_branch}'."
+      end
+      return
+    end
+
     if @initial_branch != @upstream_branch && !@initial_branch.empty?
-      safe_system "git", "checkout", @upstream_branch, *quiet
+      safe_system "git", "checkout", @upstream_branch, *@quiet_args
     end
 
     @initial_revision = read_current_revision
@@ -228,7 +252,7 @@ class Updater
     args = ["pull"]
     args << "--ff"
     args << ((ARGV.include? "--rebase") ? "--rebase" : "--no-rebase")
-    args += quiet
+    args += @quiet_args
     args << "origin"
     # the refspec ensures that the default upstream branch gets updated
     args << "refs/heads/#{@upstream_branch}:refs/remotes/origin/#{@upstream_branch}"
@@ -238,12 +262,12 @@ class Updater
     @current_revision = read_current_revision
 
     if @initial_branch != "master" && !@initial_branch.empty?
-      safe_system "git", "checkout", @initial_branch, *quiet
+      safe_system "git", "checkout", @initial_branch, *@quiet_args
     end
 
     if @stashed
-      safe_system "git", "stash", "pop", *quiet
-      unless options[:silent]
+      safe_system "git", "stash", "pop", *@quiet_args
+      if ARGV.verbose?
         puts "Restored your changes:"
         system "git", "status", "--short", "--untracked-files"
       end
@@ -257,7 +281,8 @@ class Updater
     if $?.signaled? && $?.termsig == 2 # SIGINT
       safe_system "git", "checkout", @initial_branch unless @initial_branch.empty?
       safe_system "git", "reset", "--hard", @initial_revision
-      safe_system "git", "stash", "pop" if @stashed
+      safe_system "git", "stash", "pop", *@quiet_args if @stashed
+      @stashed = false
     end
   end
 
@@ -301,6 +326,10 @@ class Updater
     end
 
     map
+  end
+
+  def updated?
+    initial_revision && initial_revision != current_revision
   end
 
   private
@@ -411,10 +440,33 @@ class Report
 
   def dump_formula_report(key, title)
     formula = select_formula(key)
-    formula.map! { |oldname, newname| "#{oldname} -> #{newname}" } if key == :R
     unless formula.empty?
+      # Determine list item indices of installed formulae.
+      formula_installed_index = formula.each_index.select do |index|
+        name, newname = formula[index]
+        installed?(name) || (newname && installed?(newname))
+      end
+
+      # Format list items of renamed formulae.
+      if key == :R
+        formula.map! { |oldname, newname| "#{oldname} -> #{newname}" }
+      end
+
+      # Append suffix '(installed)' to list items of installed formulae.
+      formula_installed_index.each do |index|
+        formula[index] += " (installed)"
+      end
+
+      # Fetch list items of installed formulae for highlighting.
+      formula_installed = formula.values_at(*formula_installed_index)
+
+      # Dump formula list.
       ohai title
-      puts_columns formula
+      puts_columns(formula, formula_installed)
     end
+  end
+
+  def installed?(formula)
+    (HOMEBREW_CELLAR/formula.split("/").last).directory?
   end
 end

@@ -29,28 +29,24 @@ class Dmd < Formula
   end
 
   devel do
-    url "https://github.com/D-Programming-Language/dmd/archive/v2.069.0-b1.tar.gz"
-    sha256 "edd9bb128d183e9a2aad973cbb6ad106b29bcdf5b92d989282a5b6125926699d"
-    version "2.069.0-b1"
+    url "https://github.com/D-Programming-Language/dmd/archive/v2.069.0-rc1.tar.gz"
+    sha256 "f432bce9a97d77cbfcc7f1ad5e4b15698866c43a0e89e13262e3fce7a5bf2560"
+    version "2.069.0-rc1"
 
     resource "druntime" do
-      url "https://github.com/D-Programming-Language/druntime/archive/v2.069.0-b1.tar.gz"
-      sha256 "786a8c5da2a9184f7a7dac27a81be2e709b4015da87eec8e86206442f6293028"
+      url "https://github.com/D-Programming-Language/druntime/archive/v2.069.0-rc1.tar.gz"
+      sha256 "001ae3492b069f072a7b7f0565bf8ff47b2928b85f1eee90233e755a9b9a2cfd"
     end
 
     resource "phobos" do
-      url "https://github.com/D-Programming-Language/phobos/archive/v2.069.0-b1.tar.gz"
-      sha256 "47cf2a92a473a9a6e974b9f2b8a03ed5afd396d471770163a7bd64435a478268"
+      url "https://github.com/D-Programming-Language/phobos/archive/v2.069.0-rc1.tar.gz"
+      sha256 "d038131ab340903fa4de7d86923d1e67c9a76491f36b824442824369c369041a"
     end
 
     resource "tools" do
-      url "https://github.com/D-Programming-Language/tools/archive/v2.069.0-b1.tar.gz"
-      sha256 "d33a4807701908428315896383751b0f5371fdde4401445aeca5f5b5435be165"
+      url "https://github.com/D-Programming-Language/tools/archive/v2.069.0-rc1.tar.gz"
+      sha256 "390a3556f3958ebcf13182eadd6f2368e04f191bd55e47656dc6fa96579a9cf3"
     end
-
-    # echo -n doesn't work from makefiles in OS X, because sh on OS X doesn't support it,
-    # so we use printf instead. See https://github.com/D-Programming-Language/dmd/pull/5179
-    patch :DATA
   end
 
   head do
@@ -135,16 +131,3 @@ class Dmd < Formula
     system "./hello"
   end
 end
-__END__
-diff --git a/src/posix.mak b/src/posix.mak
-index 9310f32..d84787d 100644
---- a/src/posix.mak
-+++ b/src/posix.mak
-@@ -370,7 +370,7 @@ endif
- $(shell test \"$(VERSION)\" != "`cat verstr.h 2> /dev/null`" \
-		&& printf \"$(VERSION)\" > verstr.h )
- $(shell test $(SYSCONFDIR) != "`cat SYSCONFDIR.imp 2> /dev/null`" \
--		&& echo -n '$(SYSCONFDIR)' > SYSCONFDIR.imp )
-+		&& printf '$(SYSCONFDIR)' > SYSCONFDIR.imp )
-
- #########
