@@ -40,8 +40,8 @@ class Postgresql < Formula
   end
 
   resource "pgroonga" do
-    url "http://packages.groonga.org/source/pgroonga/pgroonga-0.9.0.tar.gz"
-    sha256 "846b89d20c847bf54103978e5234fab0fbf95eafdcfffb35eac5273a26357f51"
+    url "http://packages.groonga.org/source/pgroonga/pgroonga-1.0.0.tar.gz"
+    sha256 "854d66bdc79e7cfceb29ae8706556a3ad1c8b32ac4535939d296966e3b19fd3e"
   end
 
   conflicts_with "postgres-xc",
