@@ -454,10 +454,18 @@ class Checks
   end
 
   def check_tmpdir_sticky_bit
+    # Repair Disk Permissions was removed(?) in El Capitan.
+    # https://support.apple.com/en-us/HT201560
+    if MacOS.version < "10.11"
+      fix_message = "Please run \"Repair Disk Permissions\" in Disk Utility."
+    else
+      fix_message = "Please execute `sudo chmod +t #{HOMEBREW_TEMP}` in your Terminal"
+    end
+
     world_writable = HOMEBREW_TEMP.stat.mode & 0777 == 0777
     if world_writable && !HOMEBREW_TEMP.sticky? then <<-EOS.undent
     #{HOMEBREW_TEMP} is world-writable but does not have the sticky bit set.
-    Please run "Repair Disk Permissions" in Disk Utility.
+    #{fix_message}
     EOS
     end
   end
@@ -468,7 +476,7 @@ class Checks
       if dir.exist? && !dir.writable_real? then <<-EOS.undent
       #{dir} isn't writable.
 
-      This can happen if you "sudo make install" software that isn't managed by
+      This can happen if you "sudo make install" software that isn't managed
       by Homebrew. If a formula tries to write a file to this directory, the
       install will fail during the link step.
 
