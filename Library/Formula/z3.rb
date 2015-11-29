@@ -1,10 +1,9 @@
 class Z3 < Formula
   desc "High-performance theorem prover"
   homepage "https://github.com/Z3Prover/z3"
-  url "https://github.com/Z3Prover/z3/archive/z3-4.4.0.tar.gz"
-  sha256 "65b72f9eb0af50949e504b47080fb3fc95f11c435633041d9a534473f3142cba"
+  url "https://github.com/Z3Prover/z3/archive/z3-4.4.1.tar.gz"
+  sha256 "50967cca12c5c6e1612d0ccf8b6ebf5f99840a783d6cf5216336a2b59c37c0ce"
   head "https://github.com/Z3Prover/z3.git"
-  revision 1
 
   option "without-python", "Build without python 2 support"
   depends_on :python => :recommended if MacOS.version <= :snow_leopard
@@ -16,10 +15,9 @@ class Z3 < Formula
 
   bottle do
     cellar :any
-    revision 1
-    sha256 "5478a9d85f28665ab17d0bf16e42c36cb0a0395c240a6ff02691788f06a6f81d" => :el_capitan
-    sha256 "d91ef7d7bbecb962db6ab12053b3dddbcd6e8943e0ed5a5ebd572224743bcead" => :yosemite
-    sha256 "f4128b503528a0825bff4da559fffe7c27f7ec3764482eb67cb69f4b89e3010e" => :mavericks
+    sha256 "ea169ccefdbebdd17213b4fab603dce2029b03bde0b62fa98920cbaf431d4771" => :el_capitan
+    sha256 "e8f726245f283d43efe68f2516ebf1fc62fd2ab486a850befc0c388ef9f5c1ed" => :yosemite
+    sha256 "2c67f6d604e3b478bac87e223891f3252a8f29a048564a91a8ea57f6c3b9a8ba" => :mavericks
   end
 
   def install
