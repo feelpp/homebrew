@@ -134,7 +134,7 @@ class Formula
     @revision = self.class.revision || 0
 
     if path.to_s =~ HOMEBREW_TAP_PATH_REGEX
-      @full_name = "#{$1}/#{$2.gsub(/^homebrew-/, "")}/#{name}"
+      @full_name = "#{Tap.fetch($1, $2)}/#{name}"
     else
       @full_name = name
     end
@@ -296,7 +296,7 @@ class Formula
       end
     elsif tap?
       user, repo = tap.split("/")
-      formula_renames = Tap.fetch(user, repo.sub("homebrew-", "")).formula_renames
+      formula_renames = Tap.fetch(user, repo).formula_renames
       if formula_renames.value?(name)
         formula_renames.to_a.rassoc(name).first
       end
@@ -309,7 +309,7 @@ class Formula
       Formula.core_alias_reverse_table[name] || []
     elsif tap?
       user, repo = tap.split("/")
-      Tap.fetch(user, repo.sub("homebrew-", "")).alias_reverse_table[full_name] || []
+      Tap.fetch(user, repo).alias_reverse_table[full_name] || []
     else
       []
     end
@@ -391,7 +391,7 @@ class Formula
   # @private
   def any_version_installed?
     require "tab"
-    rack.directory? && rack.subdirs.any? { |keg| (keg/Tab::FILENAME).file? }
+    installed_prefixes.any? { |keg| (keg/Tab::FILENAME).file? }
   end
 
   # @private
@@ -434,6 +434,18 @@ class Formula
   # @private
   def rack
     prefix.parent
+  end
+
+  # All of current installed prefix directories.
+  # @private
+  def installed_prefixes
+    rack.directory? ? rack.subdirs : []
+  end
+
+  # All of current installed kegs.
+  # @private
+  def installed_kegs
+    installed_prefixes.map { |dir| Keg.new(dir) }
   end
 
   # The directory where the formula's binaries should be installed.
@@ -938,8 +950,7 @@ class Formula
         raise Migrator::MigrationNeededError.new(self)
       end
 
-      rack.subdirs.each do |keg_dir|
-        keg = Keg.new keg_dir
+      installed_kegs.each do |keg|
         version = keg.version
         all_versions << version
         older_version = pkg_version <= version
@@ -1285,21 +1296,18 @@ class Formula
       hsh["bottle"][spec_sym] = bottle_info
     end
 
-    if rack.directory?
-      rack.subdirs.each do |keg_path|
-        keg = Keg.new keg_path
-        tab = Tab.for_keg keg_path
+    installed_kegs.each do |keg|
+      tab = Tab.for_keg keg
 
-        hsh["installed"] << {
-          "version" => keg.version.to_s,
-          "used_options" => tab.used_options.as_flags,
-          "built_as_bottle" => tab.built_bottle,
-          "poured_from_bottle" => tab.poured_from_bottle
-        }
-      end
-
-      hsh["installed"] = hsh["installed"].sort_by { |i| Version.new(i["version"]) }
+      hsh["installed"] << {
+        "version" => keg.version.to_s,
+        "used_options" => tab.used_options.as_flags,
+        "built_as_bottle" => tab.built_bottle,
+        "poured_from_bottle" => tab.poured_from_bottle
+      }
     end
+
+    hsh["installed"] = hsh["installed"].sort_by { |i| Version.new(i["version"]) }
 
     hsh
   end
