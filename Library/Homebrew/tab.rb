@@ -28,7 +28,7 @@ class Tab < OpenStruct
       "stdlib" => stdlib,
       "source" => {
         "path" => formula.path.to_s,
-        "tap" => formula.tap,
+        "tap" => formula.tap ? formula.tap.name : nil,
         "spec" => formula.active_spec_sym.to_s
       }
     }
@@ -116,7 +116,11 @@ class Tab < OpenStruct
     else
       tab = empty
       tab.unused_options = f.options.as_flags
-      tab.source = { "path" => f.path.to_s, "tap" => f.tap, "spec" => f.active_spec_sym.to_s }
+      tab.source = {
+        "path" => f.path.to_s,
+        "tap" => f.tap ? f.tap.name : f.tap,
+        "spec" => f.active_spec_sym.to_s,
+      }
     end
 
     tab
@@ -143,12 +147,15 @@ class Tab < OpenStruct
   end
 
   def with?(val)
-    name = val.respond_to?(:option_name) ? val.option_name : val
-    include?("with-#{name}") || unused_options.include?("without-#{name}")
+    option_names = val.respond_to?(:option_names) ? val.option_names : [val]
+
+    option_names.any? do |name|
+      include?("with-#{name}") || unused_options.include?("without-#{name}")
+    end
   end
 
-  def without?(name)
-    !with? name
+  def without?(val)
+    !with?(val)
   end
 
   def include?(opt)
@@ -194,11 +201,13 @@ class Tab < OpenStruct
   end
 
   def tap
-    source["tap"]
+    tap_name = source["tap"]
+    Tap.fetch(tap_name) if tap_name
   end
 
   def tap=(tap)
-    source["tap"] = tap
+    tap_name = tap.respond_to?(:name) ? tap.name : tap
+    source["tap"] = tap_name
   end
 
   def spec

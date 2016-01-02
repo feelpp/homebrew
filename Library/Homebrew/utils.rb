@@ -9,6 +9,20 @@ require "open-uri"
 
 class Tty
   class << self
+    def tick
+      # necessary for 1.8.7 unicode handling since many installs are on 1.8.7
+      @tick ||= ["2714".hex].pack("U*")
+    end
+
+    def cross
+      # necessary for 1.8.7 unicode handling since many installs are on 1.8.7
+      @cross ||= ["2718".hex].pack("U*")
+    end
+
+    def strip_ansi(string)
+      string.gsub(/\033\[\d+(;\d+)*m/, "")
+    end
+
     def blue
       bold 34
     end
@@ -103,10 +117,39 @@ def odie(error)
   exit 1
 end
 
+def pretty_installed(f)
+  if !$stdout.tty?
+    "#{f}"
+  elsif ENV["HOMEBREW_NO_EMOJI"]
+    "#{Tty.highlight}#{Tty.green}#{f} (installed)#{Tty.reset}"
+  else
+    "#{Tty.highlight}#{f} #{Tty.green}#{Tty.tick}#{Tty.reset}"
+  end
+end
+
+def pretty_uninstalled(f)
+  if !$stdout.tty?
+    "#{f}"
+  elsif ENV["HOMEBREW_NO_EMOJI"]
+    "#{Tty.red}#{f} (uninstalled)#{Tty.reset}"
+  else
+    "#{f} #{Tty.red}#{Tty.cross}#{Tty.reset}"
+  end
+end
+
 def pretty_duration(s)
-  return "2 seconds" if s < 3 # avoids the plural problem ;)
-  return "#{s.to_i} seconds" if s < 120
-  "%.1f minutes" % (s/60)
+  s = s.to_i
+  res = ""
+
+  if s > 59
+    m = s / 60
+    s %= 60
+    res = "#{m} minute#{plural m}"
+    return res if s == 0
+    res << " "
+  end
+
+  res + "#{s} second#{plural s}"
 end
 
 def plural(n, s = "s")
@@ -267,7 +310,7 @@ def curl(*args)
   safe_system curl, *args
 end
 
-def puts_columns(items, highlight = [])
+def puts_columns(items)
   return if items.empty?
 
   unless $stdout.tty?
@@ -278,20 +321,14 @@ def puts_columns(items, highlight = [])
   # TTY case: If possible, output using multiple columns.
   console_width = Tty.width
   console_width = 80 if console_width <= 0
-  max_len = items.max_by(&:length).length
+  plain_item_lengths = items.map { |s| Tty.strip_ansi(s).length }
+  max_len = plain_item_lengths.max
   col_gap = 2 # number of spaces between columns
   gap_str = " " * col_gap
   cols = (console_width + col_gap) / (max_len + col_gap)
   cols = 1 if cols < 1
   rows = (items.size + cols - 1) / cols
   cols = (items.size + rows - 1) / rows # avoid empty trailing columns
-
-  plain_item_lengths = items.map(&:length) if cols >= 2
-  if highlight && highlight.any?
-    items = items.map do |item|
-      highlight.include?(item) ? "#{Tty.highlight}#{item}#{Tty.reset}" : item
-    end
-  end
 
   if cols >= 2
     col_width = (console_width + col_gap) / cols - col_gap
@@ -437,11 +474,7 @@ module GitHub
     end
 
     def pretty_ratelimit_reset(reset)
-      if (seconds = Time.at(reset) - Time.now) > 180
-        "%d minutes %d seconds" % [seconds / 60, seconds % 60]
-      else
-        "#{seconds} seconds"
-      end
+      pretty_duration(Time.at(reset) - Time.now)
     end
   end
 
@@ -558,4 +591,33 @@ module GitHub
     uri = URI.parse("https://api.github.com/repos/#{user}/#{repo}")
     open(uri) { |json| json["private"] }
   end
+end
+
+def disk_usage_readable(size_in_bytes)
+  if size_in_bytes >= 1_073_741_824
+    size = size_in_bytes.to_f / 1_073_741_824
+    unit = "G"
+  elsif size_in_bytes >= 1_048_576
+    size = size_in_bytes.to_f / 1_048_576
+    unit = "M"
+  elsif size_in_bytes >= 1_024
+    size = size_in_bytes.to_f / 1_024
+    unit = "K"
+  else
+    size = size_in_bytes
+    unit = "B"
+  end
+
+  # avoid trailing zero after decimal point
+  if (size * 10).to_i % 10 == 0
+    "#{size.to_i}#{unit}"
+  else
+    "#{"%.1f" % size}#{unit}"
+  end
+end
+
+def number_readable(number)
+  numstr = number.to_i.to_s
+  (numstr.size - 3).step(1, -3) { |i| numstr.insert(i, ",") }
+  numstr
 end

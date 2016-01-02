@@ -3,15 +3,15 @@
 class Wget < Formula
   desc "Internet file retriever"
   homepage "https://www.gnu.org/software/wget/"
-  url "http://ftpmirror.gnu.org/wget/wget-1.17.tar.xz"
-  mirror "https://ftp.gnu.org/gnu/wget/wget-1.17.tar.xz"
-  sha256 "bd69d63acbf329a8286ccebbe63cd4fecc998718131a0d4b2ab9239542d2bb87"
+  url "http://ftpmirror.gnu.org/wget/wget-1.17.1.tar.xz"
+  mirror "https://ftp.gnu.org/gnu/wget/wget-1.17.1.tar.xz"
+  sha256 "fe559b61eb9cc01635ac6206a14e02cb51591838c35fa83c7a4aacae0bdd97c9"
 
   bottle do
     revision 1
-    sha256 "ec06201cecf6beca781a1e697fe37ff35358d5f428f440bc693346e787458ddf" => :el_capitan
-    sha256 "8e0f1538b771d17f6ff15267d12132632318b88a78f98521332fe7530c4b78bf" => :yosemite
-    sha256 "1b9188a5659b32b804cbbbcfc15b9b5a5711a13808546029fd436df5d95eca34" => :mavericks
+    sha256 "a0c2cbc5ca625454bc7d85371d07cfec71efa64cc29f00ec8fe9f6f89cbfd7b9" => :el_capitan
+    sha256 "f0fa6b712b2ed89ff687f1c6ef47188511354c3dbd0d32cac8453c88e1775a9e" => :yosemite
+    sha256 "049e984bf8c795dcdeccabebc0fd3fd4c2c3e65b0215fe2fcaf2424c1f00b1e3" => :mavericks
   end
 
   head do
@@ -30,6 +30,7 @@ class Wget < Formula
   option "with-debug", "Build with debug support"
 
   depends_on "pkg-config" => :build
+  depends_on "pod2man" => :build if MacOS.version <= :snow_leopard
   depends_on "openssl" => :recommended
   depends_on "libressl" => :optional
   depends_on "libidn" if build.with? "iri"

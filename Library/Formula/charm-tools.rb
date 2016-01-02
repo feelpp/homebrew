@@ -1,18 +1,19 @@
 class CharmTools < Formula
   desc "Tools for authoring and maintaining juju charms"
   homepage "https://github.com/juju/charm-tools"
-  url "https://github.com/juju/charm-tools/releases/download/v1.10.0/charm-tools-1.10.0.tar.gz"
-  sha256 "e5b82e9e0003f424caec91e0da9e0391802eaeb226b82d492b753fc6bc261c37"
+  url "https://github.com/juju/charm-tools/releases/download/v1.11.0/charm-tools-1.11.0.tar.gz"
+  sha256 "3c64c44e0540d2a0b59b764342738cf2b8af398e73244c030c992d57fa0c4a6a"
 
   bottle do
     cellar :any
-    sha256 "dd056a6d490d2f53104873ca6b9e5228924b35eb8f87d9bc67f884579f090bce" => :el_capitan
-    sha256 "861ce96ea77c2941818027d19462786c7e92bad3cc6756ffa9d13f8a7e105dbe" => :yosemite
-    sha256 "3af68f57aec3c5ca1a982191bc6c75d43f28b9767fba6604d2fae55caea4e8fc" => :mavericks
+    sha256 "7604307ce0e6ea55a00ac2e305c5e94740ae0487545939b84d3e5c17c3b4d326" => :el_capitan
+    sha256 "52b4969cbc81decd61ea37a98921c6bce8ed87e0ecc7a66a9ea9c7cfbb8a4eeb" => :yosemite
+    sha256 "3c1c3edd779c92a4214289b80d91bec5cfd76527d3665e778e79aba9ccfeecbd" => :mavericks
   end
 
   depends_on :python if MacOS.version <= :snow_leopard
   depends_on "libyaml"
+  depends_on :hg
 
   resource "pip" do
     url "https://pypi.python.org/packages/source/p/pip/pip-7.1.2.tar.gz"
@@ -62,6 +63,11 @@ class CharmTools < Formula
   resource "iso8601" do
     url "https://pypi.python.org/packages/source/i/iso8601/iso8601-0.1.11.tar.gz"
     sha256 "e8fb52f78880ae063336c94eb5b87b181e6a0cc33a6c008511bac9a6e980ef30"
+  end
+
+  resource "jsonschema" do
+    url "https://pypi.python.org/packages/source/j/jsonschema/jsonschema-2.5.1.tar.gz"
+    sha256 "36673ac378feed3daa5956276a829699056523d7961027911f064b52255ead41"
   end
 
   resource "jujubundlelib" do
@@ -201,7 +207,7 @@ class CharmTools < Formula
 
   def install
     ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python2.7/site-packages"
-    %w[pip blessings bzr charm-tools charmworldlib Cheetah colander ecdsa httplib2 iso8601 jujubundlelib keyring launchpadlib lazr.authentication lazr.restfulclient lazr.uri Markdown oauth otherstuf paramiko parse path.py pathspec pycrypto PyYAML requests ruamel.base ruamel.ordereddict ruamel.yaml simplejson stuf testresources translationstring virtualenv wadllib wsgi_intercept zope.interface].each do |r|
+    %w[pip blessings bzr charm-tools charmworldlib Cheetah colander ecdsa httplib2 iso8601 jsonschema jujubundlelib keyring launchpadlib lazr.authentication lazr.restfulclient lazr.uri Markdown oauth otherstuf paramiko parse path.py pathspec pycrypto PyYAML requests ruamel.base ruamel.ordereddict ruamel.yaml simplejson stuf testresources translationstring virtualenv wadllib wsgi_intercept zope.interface].each do |r|
       resource(r).stage do
         system "python", *Language::Python.setup_install_args(libexec/"vendor")
       end

@@ -29,7 +29,7 @@ With `--verbose` or `-v`, many commands print extra debugging information. Note 
   * `list`:
     List all installed formulae.
 
-  * `search` <text> | `/`<text>`/`:
+  * `search` <text>|`/`<text>`/`:
     Perform a substring search of formula names for <text>. If <text> is
     surrounded with slashes, then it is interpreted as a regular expression.
     The search for <text> is extended online to some popular taps.
@@ -55,7 +55,7 @@ With `--verbose` or `-v`, many commands print extra debugging information. Note 
   * `cat` <formula>:
     Display the source to <formula>.
 
-  * `cleanup` [`--force`] [`--prune=`<days>] [`-n`] [`-s`] [<formulae>]:
+  * `cleanup` [`--force`] [`--prune=`<days>] [`--dry-run`] [`-s`] [<formulae>]:
     For all installed or specific formulae, remove any older versions from the
     cellar. By default, does not remove out-of-date keg-only brews, as other
     software may link directly to specific versions. In addition, old downloads from
@@ -65,7 +65,8 @@ With `--verbose` or `-v`, many commands print extra debugging information. Note 
 
     If `--prune=`<days> is specified, remove all cache files older than <days>.
 
-    If `-n` is passed, show what would be removed, but do not actually remove anything.
+    If `--dry-run` or `-n` is passed, show what would be removed, but do not
+    actually remove anything.
 
     If `-s` is passed, scrubs the cache, removing downloads for even the latest
     versions of formulae. Note downloads for any installed formulae will still not be
@@ -189,7 +190,7 @@ With `--verbose` or `-v`, many commands print extra debugging information. Note 
 
     To view formula history locally: `brew log -p <formula>`.
 
-  * `info --json=`<version>` (`--all`|`--installed`|`<formulae>):
+  * `info --json=`<version> (`--all`|`--installed`|<formulae>):
     Print a JSON representation of <formulae>. Currently the only accepted value
     for <version> is `v1`.
 
@@ -279,11 +280,11 @@ With `--verbose` or `-v`, many commands print extra debugging information. Note 
     If provided, `--local` will move them into the user's `~/Applications`
     directory instead of the system directory. It may need to be created, first.
 
-  * `ls`, `list` [`--full-name`]
+  * `ls`, `list` [`--full-name`]:
     List all installed formulae. If `--full-name` is passed, print formulae with
     full-qualified names.
 
-  * `ls`, `list --unbrewed`
+  * `ls`, `list --unbrewed`:
     List all files in the Homebrew prefix not installed by Homebrew.
 
   * `ls`, `list` [`--versions` [`--multiple`]] [`--pinned`] [<formulae>]:
@@ -324,7 +325,7 @@ With `--verbose` or `-v`, many commands print extra debugging information. Note 
 
     If `--installed` is passed, show options for all installed formulae.
 
-  * `outdated` [`--quiet` | `--verbose` | `--json=v1` ]:
+  * `outdated` [`--quiet`|`--verbose`|`--json=v1`]:
     Show formulae that have an updated version available.
 
     By default, version information is displayed in interactive shells, and
@@ -377,21 +378,21 @@ With `--verbose` or `-v`, many commands print extra debugging information. Note 
   * `switch` <name> <version>:
     Symlink all of the specific <version> of <name>'s install to Homebrew prefix.
 
+  * `tap`:
+    List all installed taps.
+
   * `tap` [`--full`] <user>`/`<repo> [<URL>]:
-    Tap a formula repository or list existing taps. This command can be invoked
-    in three ways.
+    Tap a formula repository.
 
-    + `tap` without arguments displays existing taps.
+    With <URL> unspecified, taps a formula repository from GitHub using HTTPS.
+    Since so many taps are hosted on GitHub, this command is a shortcut for
+    `tap <user>/<repo> https://github.com/<user>/homebrew-<repo>`.
 
-    + `tap` <user>`/`<repo>` taps a formula repository from GitHub using HTTPS.
-      Since so many taps are hosted on GitHub, this command is a shortcut for
-      `tap <user>/<repo> https://github.com/<user>/homebrew-<repo>`.
-
-    + `tap` <user>`/`<repo> <URL> taps a formula repository from anywhere, using
-      any transport protocol that `git` handles. The one-argument form of `tap`
-      simplifies but also limits.  This two-argument command makes no
-      assumptions, so taps can be cloned from places other than GitHub and
-      using protocols other than HTTPS, e.g., SSH, GIT, HTTP, FTP(S), RSYNC.
+    With <URL> specified, taps a formula repository from anywhere, using
+    any transport protocol that `git` handles. The one-argument form of `tap`
+    simplifies but also limits. This two-argument command makes no
+    assumptions, so taps can be cloned from places other than GitHub and
+    using protocols other than HTTPS, e.g., SSH, GIT, HTTP, FTP(S), RSYNC.
 
     By default, the repository is cloned as a shallow copy (`--depth=1`), but
     if `--full` is passed, a full clone will be used.
@@ -592,7 +593,9 @@ can take several different forms:
 
   * `HOMEBREW_BUILD_FROM_SOURCE`:
     If set, instructs Homebrew to compile from source even when a formula
-    provides a bottle.
+    provides a bottle. This environment variable is intended for use by
+    Homebrew developers. Please do not file issues if you encounter errors when
+    using this environment variable.
 
   * `HOMEBREW_CACHE`:
     If set, instructs Homebrew to use the given directory as the download cache.
@@ -715,10 +718,10 @@ Homebrew Documentation: <https://github.com/Homebrew/homebrew/blob/master/share/
 
 ## AUTHORS
 
-Homebrew's current maintainers are Misty De Meo, Andrew Janke, Xu Cheng, Mike McQuaid, Baptiste Fontaine, Brett Koonce, Dominyk Tiller, Tim Smith and Alex Dunn.
+Homebrew's current maintainers are Misty De Meo, Andrew Janke, Xu Cheng, Mike McQuaid, Baptiste Fontaine, Brett Koonce, Martin Afanasjew, Dominyk Tiller, Tim Smith and Alex Dunn.
 
-Homebrew was originally created by Max Howell.
+Former maintainers with significant contributions include Jack Nagel, Adam Vandenberg and Homebrew's creator: Max Howell.
 
 ## BUGS
 
-See Issues on GitHub: <https://github.com/Homebrew/homebrew/issues>
+See our issues on GitHub: <https://github.com/Homebrew/homebrew/issues>
