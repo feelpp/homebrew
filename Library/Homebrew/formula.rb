@@ -78,7 +78,6 @@ class Formula
   # This contains all the attributes (e.g. URL, checksum) that apply to the
   # stable version of this formula.
   # @private
-
   attr_reader :stable
 
   # The development {SoftwareSpec} for this {Formula}.
@@ -107,6 +106,10 @@ class Formula
   # @see #active_spec
   # @private
   attr_reader :active_spec_sym
+
+  # most recent modified time for source files
+  # @private
+  attr_reader :source_modified_time
 
   # Used for creating new Homebrew versions of software without new upstream
   # versions.
@@ -1047,7 +1050,6 @@ class Formula
       -DCMAKE_BUILD_TYPE=Release
       -DCMAKE_FIND_FRAMEWORK=LAST
       -DCMAKE_VERBOSE_MAKEFILE=ON
-      -DCMAKE_OSX_SYSROOT=#{MacOS.sdk_path}
       -Wno-dev
     ]
   end
@@ -1288,7 +1290,7 @@ class Formula
       hsh["installed"] << {
         "version" => keg.version.to_s,
         "used_options" => tab.used_options.as_flags,
-        "built_as_bottle" => tab.built_bottle,
+        "built_as_bottle" => tab.built_as_bottle,
         "poured_from_bottle" => tab.poured_from_bottle
       }
     end
@@ -1475,6 +1477,50 @@ class Formula
     end
   end
 
+  # @private
+  def eligible_kegs_for_cleanup
+    eligible_for_cleanup = []
+    if installed?
+      eligible_kegs = installed_kegs.select { |k| pkg_version > k.version }
+      if eligible_kegs.any? && eligible_for_cleanup?
+        eligible_kegs.each do |keg|
+          if keg.linked?
+            opoo "Skipping (old) #{keg} due to it being linked"
+          else
+            eligible_for_cleanup << keg
+          end
+        end
+      else
+        eligible_kegs.each { |keg| opoo "Skipping (old) keg-only: #{keg}" }
+      end
+    elsif installed_prefixes.any? && !pinned?
+      # If the cellar only has one version installed, don't complain
+      # that we can't tell which one to keep. Don't complain at all if the
+      # only installed version is a pinned formula.
+      opoo "Skipping #{full_name}: most recent version #{pkg_version} not installed"
+    end
+    eligible_for_cleanup
+  end
+
+  # @private
+  def eligible_for_cleanup?
+    # It used to be the case that keg-only kegs could not be cleaned up, because
+    # older brews were built against the full path to the keg-only keg. Then we
+    # introduced the opt symlink, and built against that instead. So provided
+    # no brew exists that was built against an old-style keg-only keg, we can
+    # remove it.
+    if !keg_only? || ARGV.force?
+      true
+    elsif opt_prefix.directory?
+      # SHA records were added to INSTALL_RECEIPTS the same day as opt symlinks
+      Formula.installed.select do |f|
+        f.deps.any? do |d|
+          d.to_formula.full_name == full_name rescue d.name == name
+        end
+      end.all? { |f| f.installed_prefixes.all? { |keg| Tab.for_keg(keg).HEAD } }
+    end
+  end
+
   private
 
   def exec_cmd(cmd, args, out, logfn)
@@ -1507,6 +1553,7 @@ class Formula
 
   def stage
     active_spec.stage do
+      @source_modified_time = active_spec.source_modified_time
       @buildpath = Pathname.pwd
       env_home = buildpath/".brew_home"
       mkdir_p env_home

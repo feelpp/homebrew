@@ -1,16 +1,16 @@
 class Pushpin < Formula
   desc "Reverse proxy for realtime web services"
   homepage "http://pushpin.org"
-  url "https://dl.bintray.com/fanout/source/pushpin-1.6.0.tar.bz2"
-  sha256 "ae9bec6e7a76a3c3415d59e251876741dbda1a14422d406d640c0ed5f1a75335"
+  url "https://dl.bintray.com/fanout/source/pushpin-1.7.0.tar.bz2"
+  sha256 "8702df894acbcc035c2faf23377b83c2dd2ec5a183091c50774e5e76d7a94a45"
 
   head "https://github.com/fanout/pushpin.git"
 
   bottle do
     cellar :any
-    sha256 "208105973ce4552465262a249d873b659566e4bbe82ef535003b99f661205624" => :el_capitan
-    sha256 "901ed062de4fb8df3bda948f3dbdc2c56d50a09d4d023e0c27f454bfa95190af" => :yosemite
-    sha256 "00f77b4a4e0aebdad241d80c66eeb8fec90eaaa7a6a3a6abdf4aadef48645031" => :mavericks
+    sha256 "b3db3ceec6249d9c7f2a759d02290909dd71c07dfd6693d3f59842d04264d4e3" => :el_capitan
+    sha256 "1ed980f1db9942934c7faf6ba993bbfa9b6052182a5803a2a2bd6c6247f320a5" => :yosemite
+    sha256 "33920a5a880cc622d945e6785154ed022f798b45515d34e485da8136bb0fd1f7" => :mavericks
   end
 
   depends_on "pkg-config" => :build
@@ -52,11 +52,6 @@ class Pushpin < Formula
     sha256 "55715a5d758214034db179005def47ed842da36c4c48e9e7ae59bcaffed7ca9b"
   end
 
-  resource "sortedcontainers" do
-    url "https://pypi.python.org/packages/source/s/sortedcontainers/sortedcontainers-0.9.6.tar.gz"
-    sha256 "bacaeb1c3e59c3083eec4d1198ba5625246c012e0342aafa46291632e8458dd3"
-  end
-
   def install
     ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python2.7/site-packages"
 
@@ -70,7 +65,7 @@ class Pushpin < Formula
     system "make", "install", "prefix=#{prefix}", "varprefix=#{var}"
 
     pyenv = { :PYTHONPATH => ENV["PYTHONPATH"] }
-    %w[pushpin pushpin-handler pushpin-publish].each do |f|
+    %w[pushpin pushpin-publish].each do |f|
       (libexec/"bin").install bin/f
       (bin/f).write_env_script libexec/"bin/#{f}", pyenv
     end
