@@ -8,9 +8,10 @@ class Pushpin < Formula
 
   bottle do
     cellar :any
-    sha256 "b3db3ceec6249d9c7f2a759d02290909dd71c07dfd6693d3f59842d04264d4e3" => :el_capitan
-    sha256 "1ed980f1db9942934c7faf6ba993bbfa9b6052182a5803a2a2bd6c6247f320a5" => :yosemite
-    sha256 "33920a5a880cc622d945e6785154ed022f798b45515d34e485da8136bb0fd1f7" => :mavericks
+    revision 1
+    sha256 "c749f9052715ac5b625736726caff94a82584bcd453f8e601c95c3b419bc6c66" => :el_capitan
+    sha256 "507da5b282dcd2ee0a37bee2773aebf91afb487dbc2e4ac5bdc509e7ce7d6e5d" => :yosemite
+    sha256 "a8b70f8b64ed196b2d3159b8c0f62b93a8a7c3967e217776680c401ba7b313c0" => :mavericks
   end
 
   depends_on "pkg-config" => :build
@@ -23,8 +24,8 @@ class Pushpin < Formula
 
   # MacOS versions prior to Yosemite need the latest setuptools in order to compile dependencies
   resource "setuptools" do
-    url "https://pypi.python.org/packages/source/s/setuptools/setuptools-17.0.tar.gz"
-    sha256 "561b33819ef3da2bff89cc8b05fd9b5ea3caeb31ad588b53fdf06f886ac3d200"
+    url "https://pypi.python.org/packages/source/s/setuptools/setuptools-19.4.tar.gz"
+    sha256 "214bf29933f47cf25e6faa569f710731728a07a19cae91ea64f826051f68a8cf"
   end
 
   resource "MarkupSafe" do
@@ -33,18 +34,18 @@ class Pushpin < Formula
   end
 
   resource "Jinja2" do
-    url "https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.7.3.tar.gz"
-    sha256 "2e24ac5d004db5714976a04ac0e80c6df6e47e98c354cb2c0d82f8879d4f8fdb"
+    url "https://pypi.python.org/packages/source/J/Jinja2/Jinja2-2.8.tar.gz"
+    sha256 "bc1ff2ff88dbfacefde4ddde471d1417d3b304e8df103a7a9437d47269201bf4"
   end
 
   resource "pyzmq" do
-    url "https://pypi.python.org/packages/source/p/pyzmq/pyzmq-14.6.0.tar.gz"
-    sha256 "7746806ff94f1e8c1e843644c6bbd3b9aaeb1203c2eaf38879adc23dbd5c35bb"
+    url "https://pypi.python.org/packages/source/p/pyzmq/pyzmq-15.2.0.tar.gz"
+    sha256 "2dafa322670a94e20283aba2a44b92134d425bd326419b68ad4db8d0831a26ec"
   end
 
   resource "setproctitle" do
-    url "https://pypi.python.org/packages/source/s/setproctitle/setproctitle-1.1.8.tar.gz"
-    sha256 "b564cf6488217c7a4632a9fe646fc3a3bea2f9712b4e667e9632b870d1a58211"
+    url "https://pypi.python.org/packages/source/s/setproctitle/setproctitle-1.1.9.tar.gz"
+    sha256 "1c3414d18f9cacdab78b0ffd8e886d56ad45f22e55001a72aaa0b2aeb56a0ad7"
   end
 
   resource "tnetstring" do
